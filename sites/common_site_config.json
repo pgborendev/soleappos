@@ -1,0 +1,19 @@
+{
+ "background_workers": 1,
+ "default_site": "soleap.local",
+ "file_watcher_port": 6788,
+ "frappe_user": "frappe-user",
+ "gunicorn_workers": 33,
+ "live_reload": true,
+ "rebase_on_pull": false,
+ "redis_cache": "redis://localhost:6380",
+ "redis_queue": "redis://localhost:6381",
+ "redis_socketio": "redis://localhost:6382",
+ "restart_supervisor_on_update": false,
+ "restart_systemd_on_update": false,
+ "serve_default_site": true,
+ "shallow_clone": true,
+ "socketio_port": 9001,
+ "use_redis_auth": false,
+ "webserver_port": 8001
+}
