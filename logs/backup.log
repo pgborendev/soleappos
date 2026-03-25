@@ -1,0 +1,6 @@
+set -o pipefail; /usr/bin/mariadb-dump --user=_f67781a140de8f61 --host=127.0.0.1 --port=3306 --password=********** --single-transaction --quick --lock-tables=false _f67781a140de8f61 | /usr/bin/gzip >> ./soleap.local/private/backups/20260324_103002-soleap_local-database.sql.gz
+
+Backup Summary for soleap.local at 2026-03-24 10:30:03.746653
+Config  : ./soleap.local/private/backups/20260324_103002-soleap_local-site_config_backup.json 158.0B
+Database: ./soleap.local/private/backups/20260324_103002-soleap_local-database.sql.gz         1.5MiB
+Backup for Site soleap.local has been successfully completed
