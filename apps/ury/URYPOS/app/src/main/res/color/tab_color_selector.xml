@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Color when the tab is selected (Sky Blue) -->
+    <item android:color="#2563EB" android:state_selected="true" />
+
+    <!-- Color when the tab is NOT selected (Gray/Variant) -->
+    <!-- Note: Do not use colorSurface here or it will be invisible -->
+    <item android:color="?attr/colorOnSurfaceVariant" />
+</selector>
