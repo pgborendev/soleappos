@@ -1,6 +1,0 @@
-2026-03-24 09:33:17,395 ERROR frappe New Exception collected in error log
-Site: soleap.local
-Form Dict: {'doc': '{"docstatus":0,"doctype":"URY Table","name":"new-ury-table-pxdaepwqir","__islocal":1,"__unsaved":1,"owner":"Administrator","table_shape":"Rectangle","is_take_away":0,"occupied":0,"latest_invoice_time":"08:02:52","no_of_seats":null,"minimum_seating":5,"branch":"សុលាភម្ហូបខ្មែរ ផ្លូវជាតិលេខ៣","restaurant":"URY","restaurant_room":"AC"}', 'action': 'Save', 'cmd': 'frappe.desk.form.save.savedocs'}
-2026-03-24 09:33:31,853 ERROR frappe New Exception collected in error log
-Site: soleap.local
-Form Dict: {'doc': '{"docstatus":0,"doctype":"URY Table","name":"new-ury-table-pxdaepwqir","__islocal":1,"__unsaved":1,"owner":"Administrator","table_shape":"Rectangle","is_take_away":0,"occupied":0,"latest_invoice_time":"08:02:52","no_of_seats":null,"minimum_seating":5,"branch":"សុលាភម្ហូបខ្មែរ ផ្លូវជាតិលេខ៣","restaurant":"URY","restaurant_room":"AC"}', 'action': 'Save', 'cmd': 'frappe.desk.form.save.savedocs'}
