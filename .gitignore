@@ -4,3 +4,8 @@ logs/bench.log
 config/
 config/pids/   
 config/pids/redis_queue.rdb
+sites/assets/erpnext
+sites/assets/erpnext
+sites/assets/frappe
+sites/assets/hrms
+sites/assets/ury
