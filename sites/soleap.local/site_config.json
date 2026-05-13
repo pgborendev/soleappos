@@ -1,8 +1,10 @@
 {
- "db_name": "_f67781a140de8f61",
- "db_password": "bqlpkru0ZgHUzgFI",
- "db_type": "mariadb",
- "user_type_doctype_limit": {
-  "employee_self_service": 40
- }
+  "db_name": "_5e5899d8398b5f7b",
+  "db_password": "0225_Kimhong",
+  "root_login": "root",
+  "root_password": "0225_Kimhong",
+  "db_type": "mariadb",
+  "user_type_doctype_limit": {
+    "employee_self_service": 40
+  }
 }
