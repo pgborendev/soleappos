@@ -1,11 +1,22 @@
 logs/
 *.log
-logs/bench.log
 config/
-config/pids/   
-config/pids/redis_queue.rdb
-sites/assets/erpnext
+env/
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+
+# Frappe sites
 sites/assets/erpnext
 sites/assets/frappe
 sites/assets/hrms
 sites/assets/ury
+sites/assets/css/
+sites/assets/js/
+sites/frappe/
+sites/soleap.local/
+
+# Claude AI assistant memory (machine-specific)
+.claude/
