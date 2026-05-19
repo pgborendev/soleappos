@@ -1,6 +1,7 @@
 {
  "background_workers": 1,
  "default_site": "soleap.local",
+ "dns_multitenant": false,
  "file_watcher_port": 6788,
  "frappe_user": "frappe-user",
  "gunicorn_workers": 33,
@@ -15,5 +16,6 @@
  "shallow_clone": true,
  "socketio_port": 9001,
  "use_redis_auth": false,
- "webserver_port": 8001
+ "webserver_port": 8001,
+ "host": "0.0.0.0"
 }

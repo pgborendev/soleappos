@@ -2,6 +2,8 @@ import frappe
 from frappe import _
 from datetime import date, datetime, timedelta
 from frappe.utils import validate_phone_number
+import hashlib
+import requests
 
 
 #GetTable  decripted temporarily
@@ -720,3 +722,161 @@ def validate_pos_close(pos_profile):
     
     return "Success"
 
+
+# ── KHQR helper (no external SDK needed) ──────────────────────────────────────
+
+def _crc16(data: bytes) -> int:
+    """CRC-16/CCITT-FALSE — required by EMV QR / KHQR spec."""
+    crc = 0xFFFF
+    for byte in data:
+        crc ^= byte << 8
+        for _ in range(8):
+            crc = (crc << 1) ^ 0x1021 if crc & 0x8000 else crc << 1
+            crc &= 0xFFFF
+    return crc
+
+
+def _tlv(tag: str, value: str) -> str:
+    return f"{tag}{len(value):02d}{value}"
+
+
+def _build_individual_qr(bakong_id, merchant_name, merchant_city,
+                          amount, currency="USD",
+                          bill_number="", store_label="", terminal_label=""):
+    """
+    Build an EMV / KHQR payload for an INDIVIDUAL Bakong account.
+    Pure Python — no external SDK needed.
+    Spec: NBC KHQR v2.x, Tag 29 = individual.
+    """
+    currency_code = "840" if currency.upper() == "USD" else "116"
+
+    qr  = _tlv("00", "01")          # Payload format indicator
+    qr += _tlv("01", "12")          # Dynamic QR (12 = dynamic, 11 = static)
+
+    # Tag 29 — Individual merchant account
+    inner = _tlv("00", "A000000625010101") + _tlv("01", bakong_id)
+    qr += _tlv("29", inner)
+
+    qr += _tlv("52", "5999")         # Merchant category code
+    qr += _tlv("53", currency_code)  # Transaction currency
+    if amount and float(amount) > 0:
+        qr += _tlv("54", f"{float(amount):.2f}")  # Amount
+    qr += _tlv("58", "KH")           # Country code
+    qr += _tlv("59", merchant_name[:25])
+    qr += _tlv("60", merchant_city[:15])
+
+    # Tag 62 — Additional data
+    add = ""
+    if bill_number:    add += _tlv("01", str(bill_number)[:25])
+    if store_label:    add += _tlv("03", str(store_label)[:25])
+    if terminal_label: add += _tlv("07", str(terminal_label)[:25])
+    if add:
+        qr += _tlv("62", add)
+
+    # Tag 63 — CRC (always last)
+    qr += "6304"
+    qr += f"{_crc16(qr.encode('ascii')):04X}"
+    return qr
+
+
+# ── Frappe whitelisted endpoints ───────────────────────────────────────────────
+
+@frappe.whitelist()
+def generate_khqr(invoice=None, amount=0, currency="USD"):
+    """
+    Generate a KHQR dynamic QR string for individual account boren_peng@bkrt.
+    Returns { qr_string, md5, amount, currency } to the Android app.
+    """
+    # Read config from URY Settings (set these fields in the doctype)
+    # Fallback to hardcoded values if fields not added yet
+    try:
+        settings        = frappe.get_single("URY Settings")
+        bakong_id       = getattr(settings, "bakong_merchant_id",   None) or "boren_peng@bkrt"
+        merchant_name   = getattr(settings, "bakong_merchant_name", None) or "URY POS"
+        merchant_city   = getattr(settings, "bakong_merchant_city", None) or "Phnom Penh"
+    except Exception:
+        bakong_id     = "boren_peng@bkrt"
+        merchant_name = "URY POS"
+        merchant_city = "Phnom Penh"
+
+    # Use invoice name as bill number for easy reconciliation
+    bill_number = str(invoice) if invoice else ""
+    store_label = "URY Restaurant"
+    if invoice:
+        store_label = frappe.db.get_value("POS Invoice", invoice, "pos_profile") or store_label
+
+    terminal_label = "POS-01"
+
+    qr_string = _build_individual_qr(
+        bakong_id      = bakong_id,
+        merchant_name  = merchant_name,
+        merchant_city  = merchant_city,
+        amount         = float(amount),
+        currency       = currency,
+        bill_number    = bill_number,
+        store_label    = store_label,
+        terminal_label = terminal_label,
+    )
+
+    md5 = hashlib.md5(qr_string.encode("utf-8")).hexdigest()
+
+    return {
+        "qr_string": qr_string,
+        "md5":       md5,
+        "amount":    float(amount),
+        "currency":  currency,
+        "bakong_id": bakong_id,
+    }
+
+
+@frappe.whitelist()
+def check_khqr_status(md5):
+    """
+    Poll Bakong API to check if the QR has been paid.
+    Returns { status: 'PENDING' | 'SUCCESS' | 'FAILED', ... }
+
+    Bakong API docs: https://api-bakong.nbc.gov.kh
+    responseCode 0 = paid, anything else = not yet paid.
+    """
+    BAKONG_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoiNGZhMDU5YjA3M2VjNDZhMCJ9LCJpYXQiOjE3Nzg5MTQ2NjMsImV4cCI6MTc4NjY5MDY2M30.2GaI6_Rd60Irv1ctHMkdJZVvfkO_Mc_UeUjPIqONMiQ"
+
+    # Allow override from URY Settings
+    try:
+        settings = frappe.get_single("URY Settings")
+        token    = getattr(settings, "bakong_api_token", None) or BAKONG_TOKEN
+    except Exception:
+        token = BAKONG_TOKEN
+
+    try:
+        response = requests.post(
+            "https://api-bakong.nbc.gov.kh/v1/check_transaction_by_md5",
+            json    = {"md5": md5},
+            headers = {
+                "Authorization": f"Bearer {token}",
+                "Content-Type":  "application/json",
+            },
+            timeout = 10,
+        )
+        data = response.json()
+
+        # responseCode 0 = transaction found (paid)
+        if data.get("responseCode") == 0:
+            info = data.get("data", {}) or {}
+            return {
+                "status":         "SUCCESS",
+                "transaction_id": info.get("externalRef", ""),
+                "amount":         info.get("amount", 0),
+                "currency":       info.get("currency", ""),
+                "message":        data.get("responseMessage", "Payment received"),
+            }
+        else:
+            return {
+                "status":  "PENDING",
+                "message": data.get("responseMessage", "Awaiting payment"),
+            }
+
+    except requests.exceptions.Timeout:
+        return {"status": "PENDING", "message": "Bakong API timeout — will retry"}
+    except Exception as e:
+        frappe.log_error(f"KHQR check_payment error: {e}", "KHQR")
+        return {"status": "PENDING", "message": str(e)}

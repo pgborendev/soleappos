@@ -7,16 +7,17 @@ __pycache__/
 *.pyc
 *.pyo
 .DS_Store
+patches.txt
+yarn.lock
 
-# Frappe sites
-sites/assets/erpnext
-sites/assets/frappe
-sites/assets/hrms
-sites/assets/ury
-sites/assets/css/
-sites/assets/js/
-sites/frappe/
+# Third-party Frappe apps — managed by bench, not tracked here
+apps/frappe/
+apps/erpnext/
+apps/hrms/
+
+# Frappe sites — machine-specific, may contain DB passwords and backups
 sites/soleap.local/
+sites/assets/
 
 # Claude AI assistant memory (machine-specific)
 .claude/
