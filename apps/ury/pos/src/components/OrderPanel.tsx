@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Trash2, Edit, FrownIcon, Plus, Loader2, MessageSquare } from 'lucide-react';
+import { Trash2, Edit, FrownIcon, Plus, Loader2, MessageSquare, X } from 'lucide-react';
 import { usePOSStore } from '../store/pos-store';
 import { formatCurrency, cn } from '../lib/utils';
 import { CustomerSelect } from './CustomerSelect';
@@ -14,12 +14,17 @@ import type { RootState } from '../store/root-store';
 import { showToast } from './ui/toast';
 import { DINE_IN } from '../data/order-types';
 
-const OrderPanel = () => {
-  const { 
-    activeOrders, 
-    removeFromOrder, 
-    updateQuantity, 
-    clearOrder, 
+interface OrderPanelProps {
+  isMobileOpen?: boolean;
+  onMobileClose?: () => void;
+}
+
+const OrderPanel = ({ isMobileOpen = false, onMobileClose }: OrderPanelProps) => {
+  const {
+    activeOrders,
+    removeFromOrder,
+    updateQuantity,
+    clearOrder,
     setSelectedItem,
     orderLoading,
     isOrderInteractionDisabled,
@@ -76,7 +81,6 @@ const OrderPanel = () => {
         throw new Error('User not logged in');
       }
 
-      // Validate customer/aggregator details
       if (selectedOrderType === 'Aggregators') {
         if (!selectedAggregator?.customer) {
           showToast.error('Please select an aggregator before proceeding');
@@ -87,14 +91,13 @@ const OrderPanel = () => {
         return;
       }
 
-      // Validate table selection for dine-in orders
       if (selectedOrderType === DINE_IN && !selectedTable) {
         showToast.error(`Please select a table for ${DINE_IN} orders`);
         return;
       }
 
       setIsSubmitting(true);
-      
+
       const orderData = {
         items: activeOrders.map(item => ({
           item: item.id,
@@ -120,13 +123,11 @@ const OrderPanel = () => {
       };
 
       await syncOrder(orderData);
-      
-      // Reset all states after successful order submission
+
       resetOrderState();
       showToast.success(isUpdatingOrder ? 'Order updated successfully' : 'Order created successfully');
     } catch (error) {
       console.error('Failed to sync order:', error);
-      // Frappe API error handling
       if (error && typeof error === 'object' && '_server_messages' in error && typeof (error as any)._server_messages === 'string') {
         try {
           const messages = JSON.parse((error as any)._server_messages);
@@ -150,23 +151,15 @@ const OrderPanel = () => {
       <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
         <FrownIcon className="w-12 h-12 text-gray-400" />
       </div>
-      
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">
-        Your cart is empty
-      </h3>
-      
+      <h3 className="text-lg font-semibold text-gray-900 mb-2">Your cart is empty</h3>
       <p className="text-gray-500 text-sm mb-6 max-w-xs leading-relaxed">
         Add items to get started with your order
       </p>
-      
       <div className="flex items-center gap-2 text-blue-600 bg-blue-50 px-4 py-2 rounded-lg">
         <Plus className="w-4 h-4" />
         <span className="text-sm font-medium">Click items to add them</span>
       </div>
-      
-      <div className="mt-4 text-xs text-gray-400">
-        Double-click for customization options
-      </div>
+      <div className="mt-4 text-xs text-gray-400">Double-click for customization options</div>
     </div>
   );
 
@@ -178,150 +171,178 @@ const OrderPanel = () => {
 
   const isInteractionDisabled = isOrderInteractionDisabled() || isSubmitting;
 
-  return (
-    <div className="w-96 bg-white border-l border-gray-200 flex flex-col h-[calc(100vh-4rem)] fixed right-0 z-10">
-      <div className="p-4 border-b border-gray-200 flex-shrink-0">
-        <OrderTypeSelect disabled={isInteractionDisabled} />
-        <div className="mt-3"><CustomerSelect disabled={isInteractionDisabled} /></div>
-      </div>
-      
-      {orderLoading ? (
-        <LoadingOrderUI />
-      ) : activeOrders.length === 0 ? (
-        <EmptyCartUI />
-      ) : (
-        <>
-          <div className="flex-1 overflow-y-auto px-6">
-            {activeOrders.map((item) => (
-              <div
-                key={item.uniqueId}
-                className={cn(
-                  "flex flex-col py-4 border-b border-gray-100",
-                  isInteractionDisabled && "opacity-50"
-                )}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-medium text-gray-900 text-sm">{item.name}</h3>
-                    </div>
-                    {item.selectedVariant && (
-                      <p className="text-sm text-gray-600">{item.selectedVariant.name}</p>
-                    )}
-                    {item.selectedAddons && item.selectedAddons.length > 0 && (
-                      <p className="text-sm text-gray-500">
-                        {item.selectedAddons.map(addon => addon.name).join(', ')}
-                      </p>
-                    )}
-                    <p className="text-gray-600 text-sm">{formatCurrency(calculateItemTotal(item))}</p>
+  const renderTopControls = () => (
+    <div className="p-4 border-b border-gray-200 flex-shrink-0">
+      <OrderTypeSelect disabled={isInteractionDisabled} />
+      <div className="mt-3"><CustomerSelect disabled={isInteractionDisabled} /></div>
+    </div>
+  );
+
+  const renderPanelBody = () => {
+    if (orderLoading) return <LoadingOrderUI />;
+    if (activeOrders.length === 0) return <EmptyCartUI />;
+    return (
+      <>
+        <div className="flex-1 overflow-y-auto px-6">
+          {activeOrders.map((item) => (
+            <div
+              key={item.uniqueId}
+              className={cn(
+                "flex flex-col py-4 border-b border-gray-100",
+                isInteractionDisabled && "opacity-50"
+              )}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-medium text-gray-900 text-sm">{item.name}</h3>
                   </div>
-                  
+                  {item.selectedVariant && (
+                    <p className="text-sm text-gray-600">{item.selectedVariant.name}</p>
+                  )}
+                  {item.selectedAddons && item.selectedAddons.length > 0 && (
+                    <p className="text-sm text-gray-500">
+                      {item.selectedAddons.map(addon => addon.name).join(', ')}
+                    </p>
+                  )}
+                  <p className="text-gray-600 text-sm">{formatCurrency(calculateItemTotal(item))}</p>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Button
+                    onClick={() => handleEdit(item)}
+                    variant="ghost"
+                    size="icon"
+                    className="text-blue-600 hover:text-blue-700"
+                    title="Edit item"
+                    disabled={isInteractionDisabled}
+                  >
+                    <Edit className="w-4 h-4" />
+                  </Button>
                   <div className="flex items-center space-x-2">
                     <Button
-                      onClick={() => handleEdit(item)}
-                      variant="ghost"
+                      onClick={() => {
+                        const newQuantity = Math.max(0, item.quantity - 1);
+                        if (newQuantity === 0) {
+                          removeFromOrder(item.uniqueId!);
+                        } else {
+                          updateQuantity(item.uniqueId!, newQuantity);
+                        }
+                      }}
+                      variant="outline"
                       size="icon"
-                      className="text-blue-600 hover:text-blue-700"
-                      title="Edit item"
+                      className="w-8 h-8 rounded-full"
                       disabled={isInteractionDisabled}
                     >
-                      <Edit className="w-4 h-4" />
+                      -
                     </Button>
-                    <div className="flex items-center space-x-2">
-                      <Button
-                        onClick={() => {
-                          const newQuantity = Math.max(0, item.quantity - 1);
-                          if (newQuantity === 0) {
-                            removeFromOrder(item.uniqueId!);
-                          } else {
-                            updateQuantity(item.uniqueId!, newQuantity);
-                          }
-                        }}
-                        variant="outline"
-                        size="icon"
-                        className="w-8 h-8 rounded-full"
-                        disabled={isInteractionDisabled}
-                      >
-                        -
-                      </Button>
-                      <span className="w-6 text-center">{item.quantity}</span>
-                      <Button
-                        onClick={() => updateQuantity(item.uniqueId!, item.quantity + 1)}
-                        variant="outline"
-                        size="icon"
-                        className="w-8 h-8 rounded-full"
-                        disabled={isInteractionDisabled}
-                      >
-                        +
-                      </Button>
-                    </div>
-                    
+                    <span className="w-6 text-center">{item.quantity}</span>
                     <Button
-                      onClick={() => removeFromOrder(item.uniqueId!)}
-                      variant="ghost"
+                      onClick={() => updateQuantity(item.uniqueId!, item.quantity + 1)}
+                      variant="outline"
                       size="icon"
-                      className="text-red-500 hover:text-red-600"
+                      className="w-8 h-8 rounded-full"
                       disabled={isInteractionDisabled}
                     >
-                      <Trash2 className="w-5 h-5" />
+                      +
                     </Button>
                   </div>
+
+                  <Button
+                    onClick={() => removeFromOrder(item.uniqueId!)}
+                    variant="ghost"
+                    size="icon"
+                    className="text-red-500 hover:text-red-600"
+                    disabled={isInteractionDisabled}
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </Button>
                 </div>
               </div>
-            ))}
-            {activeOrders.length > 0 && (
-              <Button
-                onClick={clearOrder}
-                variant="ghost"
-                size="sm"
-                className="w-full text-gray-600 hover:text-gray-800 mt-4"
-                disabled={isInteractionDisabled}
-              >
-                Clear cart
-              </Button>
-            )}
-          </div>
-          
-          <div className="p-4 border-t border-gray-200 flex-shrink-0 bg-white">
-            <div className="flex justify-between items-center mb-4">
-              <div className="flex items-center gap-2">
-                <Button
-                  onClick={() => setShowCommentDialog(true)}
-                  variant="ghost"
-                  size="sm"
-                  className={cn(
-                    "h-8 w-8 p-0",
-                    orderComment ? "text-blue-600" : "text-gray-500 hover:text-gray-700"
-                  )}
-                  disabled={isInteractionDisabled}
-                  title={orderComment ? "Edit comment" : "Add comment"}
-                >
-                  <MessageSquare className="w-4 h-4" />
-                </Button>
-                <span className="text-lg font-semibold">Total</span>
-              </div>
-              <span className="text-lg font-semibold">{formatCurrency(total)}</span>
             </div>
+          ))}
+          {activeOrders.length > 0 && (
             <Button
-              onClick={handleSubmit}
-              variant="default"
-              size="default"
-              className="w-full"
+              onClick={clearOrder}
+              variant="ghost"
+              size="sm"
+              className="w-full text-gray-600 hover:text-gray-800 mt-4"
               disabled={isInteractionDisabled}
             >
-              {isSubmitting ? (
-                <div className="flex items-center">
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  {isUpdatingOrder ? 'Updating Order...' : 'Processing Order...'}
-                </div>
-              ) : isUpdatingOrder ? (
-                'Update Order'
-              ) : (
-                'Add New Order'
-              )}
+              Clear cart
             </Button>
+          )}
+        </div>
+
+        <div className="p-4 border-t border-gray-200 flex-shrink-0 bg-white">
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => setShowCommentDialog(true)}
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  "h-8 w-8 p-0",
+                  orderComment ? "text-blue-600" : "text-gray-500 hover:text-gray-700"
+                )}
+                disabled={isInteractionDisabled}
+                title={orderComment ? "Edit comment" : "Add comment"}
+              >
+                <MessageSquare className="w-4 h-4" />
+              </Button>
+              <span className="text-lg font-semibold">Total</span>
+            </div>
+            <span className="text-lg font-semibold">{formatCurrency(total)}</span>
           </div>
-        </>
+          <Button
+            onClick={handleSubmit}
+            variant="default"
+            size="default"
+            className="w-full"
+            disabled={isInteractionDisabled}
+          >
+            {isSubmitting ? (
+              <div className="flex items-center">
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                {isUpdatingOrder ? 'Updating Order...' : 'Processing Order...'}
+              </div>
+            ) : isUpdatingOrder ? (
+              'Update Order'
+            ) : (
+              'Add New Order'
+            )}
+          </Button>
+        </div>
+      </>
+    );
+  };
+
+  return (
+    <>
+      {/* Desktop: fixed right panel, hidden on mobile */}
+      <div className="hidden lg:flex w-96 bg-white border-l border-gray-200 flex-col h-[calc(100vh-4rem)] fixed right-0 z-10">
+        {renderTopControls()}
+        {renderPanelBody()}
+      </div>
+
+      {/* Mobile: bottom sheet, only mounted when open */}
+      {isMobileOpen && (
+        <div className="lg:hidden fixed inset-0 z-50 flex flex-col justify-end">
+          <div className="absolute inset-0 bg-black/40" onClick={onMobileClose} />
+          <div className="relative bg-white rounded-t-2xl max-h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
+              <h2 className="text-base font-semibold">Current Order</h2>
+              <button
+                onClick={onMobileClose}
+                className="p-1.5 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+            {renderTopControls()}
+            {renderPanelBody()}
+          </div>
+        </div>
       )}
 
       {editingItem && (
@@ -344,8 +365,8 @@ const OrderPanel = () => {
         onSave={handleCommentSave}
         initialComment={orderComment}
       />
-    </div>
+    </>
   );
 };
 
-export default OrderPanel; 
+export default OrderPanel;

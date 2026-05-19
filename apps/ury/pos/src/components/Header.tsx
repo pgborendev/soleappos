@@ -104,20 +104,20 @@ const Header = () => {
 
   return (
     <header className="bg-white border-b border-gray-200">
-      <div className="flex items-center justify-between h-16 px-6">
+      <div className="flex items-center justify-between h-16 px-3 sm:px-6">
         {/* Logo */}
         <div className="flex items-center">
         <Link to="/" className="flex items-center space-x-3">
-            <img 
-              src="/assets/ury/pos/ury_pos.png" 
-              alt="URY POS" 
-              className="h-10 w-auto"
+            <img
+              src="/assets/ury/pos/ury_pos.png"
+              alt="URY POS"
+              className="h-8 sm:h-10 w-auto"
             />
           </Link>
         </div>
 
         {/* Search Bar */}
-        <div className="px-4 py-2 flex-1 flex items-center max-w-2xl mx-8  bg-gray-50 hover:bg-gray-100 border border-input rounded-md">
+        <div className="px-4 py-2 flex-1 flex items-center max-w-2xl mx-2 sm:mx-8 bg-gray-50 hover:bg-gray-100 border border-input rounded-md">
             <Input
               ref={searchInputRef}
               placeholder={searchPlaceholder}
@@ -125,7 +125,7 @@ const Header = () => {
               value={searchValue}
               onChange={searchOnChange}
             />
-            <div className="flex items-center gap-2 text-gray-400">
+            <div className="hidden sm:flex items-center gap-2 text-gray-400">
               <Command className="w-4 h-4" />
               <span>K</span>
             </div>
@@ -143,8 +143,8 @@ const Header = () => {
               <div className="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center">
                 <User className="w-4 h-4 text-white" />
               </div>
-              <span className="text-sm font-medium">{user?.full_name || 'User'}</span>
-              <ChevronDown className="w-4 h-4" />
+              <span className="hidden md:inline text-sm font-medium">{user?.full_name || 'User'}</span>
+              <ChevronDown className="hidden md:block w-4 h-4" />
             </Button>
 
             {/* User dropdown */}
