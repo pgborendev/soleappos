@@ -11,9 +11,7 @@ package-lock.json
 
 ury/public/pos
 ury/www/pos.html
-ury/public/URYMosaic
 ury/public/node_modules
-ury/www/URYMosaic.html
 build
 
 *.lock
