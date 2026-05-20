@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Trash2, Edit, FrownIcon, Plus, Loader2, MessageSquare, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { usePOSStore } from '../store/pos-store';
 import { formatCurrency, cn } from '../lib/utils';
 import { CustomerSelect } from './CustomerSelect';
@@ -20,6 +21,7 @@ interface OrderPanelProps {
 }
 
 const OrderPanel = ({ isMobileOpen = false, onMobileClose }: OrderPanelProps) => {
+  const { t } = useTranslation();
   const {
     activeOrders,
     removeFromOrder,
@@ -52,47 +54,30 @@ const OrderPanel = ({ isMobileOpen = false, onMobileClose }: OrderPanelProps) =>
     return (basePrice + addonsTotal) * item.quantity;
   };
 
-  const total = activeOrders.reduce(
-    (sum, item) => sum + calculateItemTotal(item),
-    0
-  );
+  const total = activeOrders.reduce((sum, item) => sum + calculateItemTotal(item), 0);
 
   const handleEdit = (item: typeof activeOrders[0]) => {
-    const menuItem = {
-      ...item,
-      variants: item.variants,
-      addons: item.addons,
-    };
-    setSelectedItem(menuItem);
+    setSelectedItem({ ...item, variants: item.variants, addons: item.addons });
     setEditingItem(item);
-  };
-
-  const handleCommentSave = (comment: string) => {
-    setOrderComment(comment);
   };
 
   const handleSubmit = async () => {
     try {
-      if (!posProfile) {
-        throw new Error('POS Profile not found');
-      }
-
-      if (!user?.name) {
-        throw new Error('User not logged in');
-      }
+      if (!posProfile) throw new Error('POS Profile not found');
+      if (!user?.name) throw new Error('User not logged in');
 
       if (selectedOrderType === 'Aggregators') {
         if (!selectedAggregator?.customer) {
-          showToast.error('Please select an aggregator before proceeding');
+          showToast.error(t('select_aggregator_first'));
           return;
         }
       } else if (!selectedCustomer?.name) {
-        showToast.error('Please select a customer before proceeding');
+        showToast.error(t('select_customer_first'));
         return;
       }
 
       if (selectedOrderType === DINE_IN && !selectedTable) {
-        showToast.error(`Please select a table for ${DINE_IN} orders`);
+        showToast.error(t('select_table_for_order', { orderType: DINE_IN }));
         return;
       }
 
@@ -123,9 +108,8 @@ const OrderPanel = ({ isMobileOpen = false, onMobileClose }: OrderPanelProps) =>
       };
 
       await syncOrder(orderData);
-
       resetOrderState();
-      showToast.success(isUpdatingOrder ? 'Order updated successfully' : 'Order created successfully');
+      showToast.success(isUpdatingOrder ? t('order_updated_success') : t('order_created_success'));
     } catch (error) {
       console.error('Failed to sync order:', error);
       if (error && typeof error === 'object' && '_server_messages' in error && typeof (error as any)._server_messages === 'string') {
@@ -139,7 +123,7 @@ const OrderPanel = ({ isMobileOpen = false, onMobileClose }: OrderPanelProps) =>
       } else if (error instanceof Error) {
         showToast.error(error.message);
       } else {
-        showToast.error('Failed to process order');
+        showToast.error(t('failed_process_order'));
       }
     } finally {
       setIsSubmitting(false);
@@ -151,21 +135,19 @@ const OrderPanel = ({ isMobileOpen = false, onMobileClose }: OrderPanelProps) =>
       <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
         <FrownIcon className="w-12 h-12 text-gray-400" />
       </div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">Your cart is empty</h3>
-      <p className="text-gray-500 text-sm mb-6 max-w-xs leading-relaxed">
-        Add items to get started with your order
-      </p>
+      <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('cart_empty')}</h3>
+      <p className="text-gray-500 text-sm mb-6 max-w-xs leading-relaxed">{t('cart_empty_hint')}</p>
       <div className="flex items-center gap-2 text-blue-600 bg-blue-50 px-4 py-2 rounded-lg">
         <Plus className="w-4 h-4" />
-        <span className="text-sm font-medium">Click items to add them</span>
+        <span className="text-sm font-medium">{t('click_to_add')}</span>
       </div>
-      <div className="mt-4 text-xs text-gray-400">Double-click for customization options</div>
+      <div className="mt-4 text-xs text-gray-400">{t('double_click_customize')}</div>
     </div>
   );
 
   const LoadingOrderUI = () => (
     <div className="h-96">
-      <Spinner message="Loading order details..." />
+      <Spinner message={t('loading_order_details')} />
     </div>
   );
 
@@ -187,10 +169,7 @@ const OrderPanel = ({ isMobileOpen = false, onMobileClose }: OrderPanelProps) =>
           {activeOrders.map((item) => (
             <div
               key={item.uniqueId}
-              className={cn(
-                "flex flex-col py-4 border-b border-gray-100",
-                isInteractionDisabled && "opacity-50"
-              )}
+              className={cn('flex flex-col py-4 border-b border-gray-100', isInteractionDisabled && 'opacity-50')}
             >
               <div className="flex items-center justify-between">
                 <div className="flex-1">
@@ -214,7 +193,7 @@ const OrderPanel = ({ isMobileOpen = false, onMobileClose }: OrderPanelProps) =>
                     variant="ghost"
                     size="icon"
                     className="text-blue-600 hover:text-blue-700"
-                    title="Edit item"
+                    title={t('edit_comment')}
                     disabled={isInteractionDisabled}
                   >
                     <Edit className="w-4 h-4" />
@@ -223,11 +202,8 @@ const OrderPanel = ({ isMobileOpen = false, onMobileClose }: OrderPanelProps) =>
                     <Button
                       onClick={() => {
                         const newQuantity = Math.max(0, item.quantity - 1);
-                        if (newQuantity === 0) {
-                          removeFromOrder(item.uniqueId!);
-                        } else {
-                          updateQuantity(item.uniqueId!, newQuantity);
-                        }
+                        if (newQuantity === 0) removeFromOrder(item.uniqueId!);
+                        else updateQuantity(item.uniqueId!, newQuantity);
                       }}
                       variant="outline"
                       size="icon"
@@ -247,7 +223,6 @@ const OrderPanel = ({ isMobileOpen = false, onMobileClose }: OrderPanelProps) =>
                       +
                     </Button>
                   </div>
-
                   <Button
                     onClick={() => removeFromOrder(item.uniqueId!)}
                     variant="ghost"
@@ -269,7 +244,7 @@ const OrderPanel = ({ isMobileOpen = false, onMobileClose }: OrderPanelProps) =>
               className="w-full text-gray-600 hover:text-gray-800 mt-4"
               disabled={isInteractionDisabled}
             >
-              Clear cart
+              {t('clear_cart')}
             </Button>
           )}
         </div>
@@ -281,16 +256,13 @@ const OrderPanel = ({ isMobileOpen = false, onMobileClose }: OrderPanelProps) =>
                 onClick={() => setShowCommentDialog(true)}
                 variant="ghost"
                 size="sm"
-                className={cn(
-                  "h-8 w-8 p-0",
-                  orderComment ? "text-blue-600" : "text-gray-500 hover:text-gray-700"
-                )}
+                className={cn('h-8 w-8 p-0', orderComment ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700')}
                 disabled={isInteractionDisabled}
-                title={orderComment ? "Edit comment" : "Add comment"}
+                title={orderComment ? t('edit_comment') : t('add_comment')}
               >
                 <MessageSquare className="w-4 h-4" />
               </Button>
-              <span className="text-lg font-semibold">Total</span>
+              <span className="text-lg font-semibold">{t('total')}</span>
             </div>
             <span className="text-lg font-semibold">{formatCurrency(total)}</span>
           </div>
@@ -304,13 +276,9 @@ const OrderPanel = ({ isMobileOpen = false, onMobileClose }: OrderPanelProps) =>
             {isSubmitting ? (
               <div className="flex items-center">
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                {isUpdatingOrder ? 'Updating Order...' : 'Processing Order...'}
+                {isUpdatingOrder ? t('updating_order') : t('processing_order')}
               </div>
-            ) : isUpdatingOrder ? (
-              'Update Order'
-            ) : (
-              'Add New Order'
-            )}
+            ) : isUpdatingOrder ? t('update_order') : t('add_new_order')}
           </Button>
         </div>
       </>
@@ -319,19 +287,17 @@ const OrderPanel = ({ isMobileOpen = false, onMobileClose }: OrderPanelProps) =>
 
   return (
     <>
-      {/* Desktop: fixed right panel, hidden on mobile */}
       <div className="hidden lg:flex w-96 bg-white border-l border-gray-200 flex-col h-[calc(100vh-4rem)] fixed right-0 z-10">
         {renderTopControls()}
         {renderPanelBody()}
       </div>
 
-      {/* Mobile: bottom sheet, only mounted when open */}
       {isMobileOpen && (
         <div className="lg:hidden fixed inset-0 z-50 flex flex-col justify-end">
           <div className="absolute inset-0 bg-black/40" onClick={onMobileClose} />
           <div className="relative bg-white rounded-t-2xl max-h-[90vh] flex flex-col">
             <div className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
-              <h2 className="text-base font-semibold">Current Order</h2>
+              <h2 className="text-base font-semibold">{t('current_order')}</h2>
               <button
                 onClick={onMobileClose}
                 className="p-1.5 hover:bg-gray-100 rounded-full transition-colors"
@@ -347,10 +313,7 @@ const OrderPanel = ({ isMobileOpen = false, onMobileClose }: OrderPanelProps) =>
 
       {editingItem && (
         <ProductDialog
-          onClose={() => {
-            setEditingItem(null);
-            setSelectedItem(null);
-          }}
+          onClose={() => { setEditingItem(null); setSelectedItem(null); }}
           editMode
           initialVariant={editingItem.selectedVariant}
           initialAddons={editingItem.selectedAddons}
@@ -362,7 +325,7 @@ const OrderPanel = ({ isMobileOpen = false, onMobileClose }: OrderPanelProps) =>
       <CommentDialog
         isOpen={showCommentDialog}
         onClose={() => setShowCommentDialog(false)}
-        onSave={handleCommentSave}
+        onSave={(comment) => setOrderComment(comment)}
         initialComment={orderComment}
       />
     </>

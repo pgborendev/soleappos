@@ -1,17 +1,15 @@
 import { NavLink } from 'react-router-dom';
-import { 
-  LayoutGrid, 
-  ClipboardList, 
-  Table,
-} from 'lucide-react';
+import { LayoutGrid, ClipboardList, Table } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../lib/utils';
 
 const Footer = () => {
+  const { t } = useTranslation();
 
   const navItems = [
-    { icon: LayoutGrid, label: 'POS', path: '/' },
-    {icon: Table, label: 'Table', path: '/table'},
-    { icon: ClipboardList, label: 'Orders', path: '/orders' },
+    { icon: LayoutGrid, labelKey: 'nav_pos', path: '/' },
+    { icon: Table, labelKey: 'nav_table', path: '/table' },
+    { icon: ClipboardList, labelKey: 'nav_orders', path: '/orders' },
   ];
 
   return (
@@ -30,7 +28,7 @@ const Footer = () => {
               }
             >
               <item.icon className="w-5 h-5" />
-              <span className="text-xs mt-1">{item.label}</span>
+              <span className="text-xs mt-1">{t(item.labelKey)}</span>
             </NavLink>
           ))}
         </div>
@@ -39,4 +37,4 @@ const Footer = () => {
   );
 };
 
-export default Footer; 
+export default Footer;

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { MessageSquare, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button } from './ui';
 
 interface CommentDialogProps {
@@ -10,6 +11,7 @@ interface CommentDialogProps {
 }
 
 const CommentDialog = ({ isOpen, onClose, onSave, initialComment = '' }: CommentDialogProps) => {
+  const { t } = useTranslation();
   const [comment, setComment] = useState(initialComment);
 
   const handleSave = () => {
@@ -30,47 +32,33 @@ const CommentDialog = ({ isOpen, onClose, onSave, initialComment = '' }: Comment
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <MessageSquare className="w-5 h-5 text-blue-600" />
-            <h2 className="text-lg font-semibold text-gray-900">
-              Order Comments
-            </h2>
+            <h2 className="text-lg font-semibold text-gray-900">{t('order_comments')}</h2>
           </div>
-          <Button
-            onClick={handleCancel}
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0"
-          >
+          <Button onClick={handleCancel} variant="ghost" size="sm" className="h-8 w-8 p-0">
             <X className="w-4 h-4" />
           </Button>
         </div>
-        
+
         <div className="mb-6">
           <label htmlFor="comment" className="block text-sm font-medium text-gray-700 mb-2">
-            Add comments for this order
+            {t('add_comments_for_order')}
           </label>
           <textarea
             id="comment"
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            placeholder="Enter any special instructions or comments..."
+            placeholder={t('comment_placeholder')}
             className="w-full h-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
             autoFocus
           />
         </div>
-        
+
         <div className="flex gap-3 justify-end">
-          <Button
-            onClick={handleCancel}
-            variant="outline"
-            className="px-4 py-2"
-          >
-            Cancel
+          <Button onClick={handleCancel} variant="outline" className="px-4 py-2">
+            {t('cancel')}
           </Button>
-          <Button
-            onClick={handleSave}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700"
-          >
-            Save Comment
+          <Button onClick={handleSave} className="px-4 py-2 bg-blue-600 hover:bg-blue-700">
+            {t('save_comment')}
           </Button>
         </div>
       </div>
@@ -78,4 +66,4 @@ const CommentDialog = ({ isOpen, onClose, onSave, initialComment = '' }: Comment
   );
 };
 
-export default CommentDialog; 
+export default CommentDialog;

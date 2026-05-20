@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { UserPlus, Mail, Phone, Loader } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { usePOSStore, type Customer } from '../store/pos-store';
 import { Button, Dialog, DialogContent, Input } from './ui';
 import { Select, SelectItem } from './ui';
@@ -8,48 +9,41 @@ import React from 'react';
 import { addCustomer, type CreateCustomerData, searchCustomers } from '../lib/customer-api';
 import { AggregatorSelect } from './AggregatorSelect';
 
-// NewCustomerForm component
-function NewCustomerForm({ 
-  onClose, 
-  onSuccess, 
-  isCreatingCustomer: parentIsCreatingCustomer, 
-  setIsCreatingCustomer: setParentIsCreatingCustomer, 
+function NewCustomerForm({
+  onClose,
+  onSuccess,
+  isCreatingCustomer: parentIsCreatingCustomer,
+  setIsCreatingCustomer: setParentIsCreatingCustomer,
   prefillName = '',
   prefillPhone = ''
-}: { 
-  onClose: () => void; 
+}: {
+  onClose: () => void;
   onSuccess?: () => void;
   isCreatingCustomer?: boolean;
   setIsCreatingCustomer?: React.Dispatch<React.SetStateAction<boolean>>;
   prefillName?: string;
   prefillPhone?: string;
 }) {
+  const { t } = useTranslation();
   const { customerGroups, territories, fetchCustomerGroups, fetchTerritories, setSelectedCustomer } = usePOSStore();
   const [newCustomerName, setNewCustomerName] = React.useState('');
   const [newCustomerPhone, setNewCustomerPhone] = React.useState('');
-  const [newCustomerGroup, setNewCustomerGroup] = React.useState("");
-  const [newCustomerTerritory, setNewCustomerTerritory] = React.useState("");
+  const [newCustomerGroup, setNewCustomerGroup] = React.useState('');
+  const [newCustomerTerritory, setNewCustomerTerritory] = React.useState('');
   const [formError, setFormError] = React.useState(false);
-  const [apiError, setApiError] = React.useState<string>("");
+  const [apiError, setApiError] = React.useState<string>('');
   const [loadingGroups, setLoadingGroups] = React.useState(false);
   const [loadingTerritories, setLoadingTerritories] = React.useState(false);
-  
-  // Use parent loading state if available, otherwise fallback to local state
+
   const [localIsCreatingCustomer, setLocalIsCreatingCustomer] = React.useState(false);
   const isCreatingCustomer = parentIsCreatingCustomer ?? localIsCreatingCustomer;
   const setIsCreatingCustomer = setParentIsCreatingCustomer ?? setLocalIsCreatingCustomer;
 
-  // Handle prefill values
   React.useEffect(() => {
-    if (prefillName) {
-      setNewCustomerName(prefillName);
-    }
-    if (prefillPhone) {
-      setNewCustomerPhone(prefillPhone);
-    }
+    if (prefillName) setNewCustomerName(prefillName);
+    if (prefillPhone) setNewCustomerPhone(prefillPhone);
   }, [prefillName, prefillPhone]);
 
-  // Fetch groups/territories on mount
   React.useEffect(() => {
     if (!customerGroups.length) {
       setLoadingGroups(true);
@@ -61,51 +55,39 @@ function NewCustomerForm({
     }
   }, []);
 
-
-
   async function handleAddCustomerSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!newCustomerName || !newCustomerPhone) {
       setFormError(true);
       return;
     }
-
     setFormError(false);
-    setApiError("");
+    setApiError('');
     setIsCreatingCustomer(true);
-
     try {
       const customerData: CreateCustomerData = {
         customer_name: newCustomerName.trim(),
         mobile_number: newCustomerPhone.trim(),
       };
-
-      // Add optional fields only if they have values
-      if (newCustomerGroup) {
-        customerData.customer_group = newCustomerGroup;
-      }
-      if (newCustomerTerritory) {
-        customerData.territory = newCustomerTerritory;
-      }
+      if (newCustomerGroup) customerData.customer_group = newCustomerGroup;
+      if (newCustomerTerritory) customerData.territory = newCustomerTerritory;
 
       const response = await addCustomer(customerData);
       const created = response.data;
-      // Set selected customer in POS store
       setSelectedCustomer({
         id: created.name,
         name: created.customer_name,
         phone: created.mobile_number,
       });
-      // Reset form on success
-      setNewCustomerName("");
-      setNewCustomerPhone("");
-      setNewCustomerGroup("");
-      setNewCustomerTerritory("");
+      setNewCustomerName('');
+      setNewCustomerPhone('');
+      setNewCustomerGroup('');
+      setNewCustomerTerritory('');
       if (onSuccess) onSuccess();
       onClose();
     } catch (error: any) {
       console.error('Failed to create customer:', error);
-      setApiError(error?.message || 'Failed to create customer. Please try again.');
+      setApiError(error?.message || t('failed_create_customer'));
     } finally {
       setIsCreatingCustomer(false);
     }
@@ -119,7 +101,9 @@ function NewCustomerForm({
         </div>
       )}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="new-customer-name">Name <span className="text-red-500">*</span></label>
+        <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="new-customer-name">
+          {t('customer_name')} <span className="text-red-500">*</span>
+        </label>
         <Input
           id="new-customer-name"
           type="text"
@@ -130,11 +114,13 @@ function NewCustomerForm({
           aria-invalid={!!formError && !newCustomerName}
         />
         {formError && !newCustomerName && (
-          <div className="text-xs text-red-500 mt-1">Name is required</div>
+          <div className="text-xs text-red-500 mt-1">{t('name_required')}</div>
         )}
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="new-customer-phone">Phone <span className="text-red-500">*</span></label>
+        <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="new-customer-phone">
+          {t('phone')} <span className="text-red-500">*</span>
+        </label>
         <div className="relative">
           <Input
             id="new-customer-phone"
@@ -149,68 +135,52 @@ function NewCustomerForm({
           <Phone className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
         </div>
         {formError && !newCustomerPhone && (
-          <div className="text-xs text-red-500 mt-1">Phone is required</div>
+          <div className="text-xs text-red-500 mt-1">{t('phone_required')}</div>
         )}
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Customer Group</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">{t('customer_group')}</label>
         <Select
-          placeholder={loadingGroups ? 'Loading...' : 'Select group'}
+          placeholder={loadingGroups ? t('loading') : t('select_group')}
           value={newCustomerGroup}
           onValueChange={setNewCustomerGroup}
           disabled={isCreatingCustomer || loadingGroups || !customerGroups.length}
         >
           {customerGroups.map((group) => (
-            <SelectItem key={group} value={group} className="capitalize">
-              {group}
-            </SelectItem>
+            <SelectItem key={group} value={group} className="capitalize">{group}</SelectItem>
           ))}
         </Select>
         {!loadingGroups && !customerGroups.length && (
-          <div className="text-xs text-gray-400 mt-1">No options</div>
+          <div className="text-xs text-gray-400 mt-1">{t('no_options')}</div>
         )}
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Territory</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">{t('territory')}</label>
         <Select
-          placeholder={loadingTerritories ? 'Loading...' : 'Select territory'}
+          placeholder={loadingTerritories ? t('loading') : t('select_territory')}
           value={newCustomerTerritory}
           onValueChange={setNewCustomerTerritory}
           disabled={isCreatingCustomer || loadingTerritories || !territories.length}
         >
           {territories.map((territory) => (
-            <SelectItem key={territory} value={territory} className="capitalize">
-              {territory}
-            </SelectItem>
+            <SelectItem key={territory} value={territory} className="capitalize">{territory}</SelectItem>
           ))}
         </Select>
         {!loadingTerritories && !territories.length && (
-          <div className="text-xs text-gray-400 mt-1">No options</div>
+          <div className="text-xs text-gray-400 mt-1">{t('no_options')}</div>
         )}
       </div>
       <div className="flex gap-3 mt-6">
-        <Button
-          type="submit"
-          variant="default"
-          className="flex-1"
-          disabled={isCreatingCustomer}
-        >
+        <Button type="submit" variant="default" className="flex-1" disabled={isCreatingCustomer}>
           {isCreatingCustomer ? (
             <>
               <Loader className="w-4 h-4 mr-2 animate-spin" />
-              Adding Customer...
+              {t('adding_customer')}
             </>
-          ) : (
-            'Add Customer'
-          )}
+          ) : t('add_customer')}
         </Button>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onClose}
-          disabled={isCreatingCustomer}
-        >
-          Cancel
+        <Button type="button" variant="outline" onClick={onClose} disabled={isCreatingCustomer}>
+          {t('cancel')}
         </Button>
       </div>
     </form>
@@ -222,6 +192,7 @@ interface CustomerSelectProps {
 }
 
 export function CustomerSelect({ disabled }: CustomerSelectProps) {
+  const { t } = useTranslation();
   const { selectedCustomer, setSelectedCustomer, selectedOrderType, isUpdatingOrder } = usePOSStore();
   const [showNewCustomerForm, setShowNewCustomerForm] = useState(false);
   const [isCreatingCustomer, setIsCreatingCustomer] = useState(false);
@@ -235,7 +206,6 @@ export function CustomerSelect({ disabled }: CustomerSelectProps) {
   const [prefillName, setPrefillName] = useState('');
   const [prefillPhone, setPrefillPhone] = useState('');
 
-  // Debounced search
   useEffect(() => {
     if (!isOpen || !searchTerm.trim()) {
       setSearchResults([]);
@@ -251,15 +221,14 @@ export function CustomerSelect({ disabled }: CustomerSelectProps) {
           setSearchResults(results);
           setIsSearching(false);
         })
-        .catch(err => {
-          setSearchError('Failed to search customers');
+        .catch(() => {
+          setSearchError(t('failed_search_customers'));
           setIsSearching(false);
         });
     }, 300);
     return () => clearTimeout(handler);
-  }, [searchTerm, isOpen]);
+  }, [searchTerm, isOpen, t]);
 
-  // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!isOpen && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
       setIsOpen(true);
@@ -278,7 +247,6 @@ export function CustomerSelect({ disabled }: CustomerSelectProps) {
           setShowNewCustomerForm(true);
           setIsOpen(false);
         } else if (searchResults[highlightedIndex]) {
-          // The API returns { name, content, ... }
           const customer = searchResults[highlightedIndex];
           setSelectedCustomer({
             id: customer.name,
@@ -313,7 +281,7 @@ export function CustomerSelect({ disabled }: CustomerSelectProps) {
             size="sm"
             className="text-blue-700 hover:text-blue-800"
           >
-            Change
+            {t('change')}
           </Button>
         </div>
       ) : (
@@ -329,13 +297,11 @@ export function CustomerSelect({ disabled }: CustomerSelectProps) {
                 setHighlightedIndex(0);
               }}
               onFocus={() => setIsOpen(true)}
-              onBlur={e => {
-                setTimeout(() => setIsOpen(false), 100);
-              }}
+              onBlur={() => setTimeout(() => setIsOpen(false), 100)}
               onKeyDown={handleKeyDown}
-              placeholder="Search customer..."
+              placeholder={t('search_customer')}
               className="w-full h-10 border border-gray-200 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
-              aria-label="Search customer"
+              aria-label={t('search_customer')}
               autoComplete="off"
             />
             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
@@ -343,11 +309,11 @@ export function CustomerSelect({ disabled }: CustomerSelectProps) {
           {isOpen && (
             <div className="absolute w-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto">
               {searchTerm.trim() === '' && !isSearching && !searchError && (
-                <div className="p-4 text-center text-gray-400 text-sm select-none">Please type to search...</div>
+                <div className="p-4 text-center text-gray-400 text-sm select-none">{t('type_to_search')}</div>
               )}
               {isSearching && (
                 <div className="flex items-center justify-center p-4 text-gray-500 text-sm select-none">
-                  <Loader className="w-4 h-4 mr-2 animate-spin" /> Searching...
+                  <Loader className="w-4 h-4 mr-2 animate-spin" /> {t('searching')}
                 </div>
               )}
               {searchError && (
@@ -376,7 +342,7 @@ export function CustomerSelect({ disabled }: CustomerSelectProps) {
                 );
               })}
               {!isSearching && !searchError && searchResults.length === 0 && searchTerm.trim() && (
-                <div className="p-4 text-center text-gray-400 text-sm select-none">No customers found</div>
+                <div className="p-4 text-center text-gray-400 text-sm select-none">{t('no_customers_found')}</div>
               )}
               <div className="my-1 h-px bg-gray-100" />
               <button
@@ -385,7 +351,6 @@ export function CustomerSelect({ disabled }: CustomerSelectProps) {
                   highlightedIndex === searchResults.length ? 'bg-primary-50' : ''
                 }`}
                 onMouseDown={() => {
-                  // Prefill logic
                   if (/^\d+$/.test(searchTerm.trim())) {
                     setPrefillPhone(searchTerm.trim());
                     setPrefillName('');
@@ -398,26 +363,26 @@ export function CustomerSelect({ disabled }: CustomerSelectProps) {
                 }}
                 onMouseEnter={() => setHighlightedIndex(searchResults.length)}
               >
-                <UserPlus className="w-4 h-4" /> {searchTerm.trim() ? `Add "${searchTerm.trim()}"...` : 'Add New Customer'}
+                <UserPlus className="w-4 h-4" />
+                {searchTerm.trim()
+                  ? t('add_customer_with_name', { name: searchTerm.trim() })
+                  : t('add_new_customer')}
               </button>
             </div>
           )}
         </div>
       )}
       {showNewCustomerForm && (
-        <Dialog 
-          open={showNewCustomerForm} 
+        <Dialog
+          open={showNewCustomerForm}
           onOpenChange={(open) => {
-            // Prevent closing the dialog when creating customer
-            if (!isCreatingCustomer) {
-              setShowNewCustomerForm(open);
-            }
+            if (!isCreatingCustomer) setShowNewCustomerForm(open);
           }}
         >
           <DialogContent className="w-full max-w-md p-4 max-h-[80vh] overflow-y-auto">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Add New Customer</h3>
-            <NewCustomerForm 
-              onClose={() => setShowNewCustomerForm(false)} 
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('add_new_customer')}</h3>
+            <NewCustomerForm
+              onClose={() => setShowNewCustomerForm(false)}
               isCreatingCustomer={isCreatingCustomer}
               setIsCreatingCustomer={setIsCreatingCustomer}
               prefillName={prefillName}
@@ -428,4 +393,4 @@ export function CustomerSelect({ disabled }: CustomerSelectProps) {
       )}
     </div>
   );
-} 
+}

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Clock, User, UserCheck, Receipt, Printer, Pencil, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Badge, Button, Card, CardContent } from '../components/ui';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../components/ui/dialog';
 import { showToast } from '../components/ui/toast';
@@ -15,24 +16,12 @@ import { printOrder } from '../lib/print';
 import { call } from '../lib/frappe-sdk';
 
 export default function Orders() {
-  const { 
-    orders,
-    orderLoading,
-    error,
-    selectedStatus,
-    pagination,
-    selectedOrder,
-    selectedOrderItems,
-    selectedOrderTaxes,
-    selectedOrderLoading,
-    selectedOrderError,
-    fetchOrders,
-    setSelectedStatus,
-    goToNextPage,
-    goToPreviousPage,
-    selectOrder,
-    clearSelectedOrder,
-    orderSearchQuery
+  const { t } = useTranslation();
+  const {
+    orders, orderLoading, error, selectedStatus, pagination, selectedOrder,
+    selectedOrderItems, selectedOrderTaxes, selectedOrderLoading, selectedOrderError,
+    fetchOrders, setSelectedStatus, goToNextPage, goToPreviousPage, selectOrder,
+    clearSelectedOrder, orderSearchQuery
   } = useRootStore();
 
   const posStore = usePOSStore();
@@ -45,72 +34,46 @@ export default function Orders() {
   const [showPaymentDialog, setShowPaymentDialog] = React.useState(false);
   const [isPrinting, setIsPrinting] = React.useState(false);
 
-  useEffect(() => {
-    fetchOrders();
-  }, [fetchOrders]);
+  useEffect(() => { fetchOrders(); }, [fetchOrders]);
 
   useEffect(() => {
-    if (!mounted.current) {
-      mounted.current = true;
-      return; // Skip the first run
-    }
+    if (!mounted.current) { mounted.current = true; return; }
     fetchOrders();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orderSearchQuery]);
 
-
-  // Function to format the date and time
-  const formatDateTime = (date: string, time: string) => {
-    const formattedDate = new Date(date + ' ' + time).toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      hour12: true
+  const formatDateTime = (date: string, time: string) =>
+    new Date(date + ' ' + time).toLocaleString('en-US', {
+      month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true
     });
-    return formattedDate;
-  };
 
-  const handleOrderClick = (order: any) => {
-    selectOrder(order);
-  };
-
-  // Helper function to get badge variant based on order status
   const getBadgeVariant = (status: string) => {
     switch (status) {
-      case 'Draft':
-      case 'Unbilled':
-        return 'secondary';
-      case 'Recently Paid':
-      case 'Paid':
-      case 'Consolidated':
-        return 'default';
-      case 'Return':
-        return 'destructive';
-      default:
-        return 'default';
+      case 'Draft': case 'Unbilled': return 'secondary';
+      case 'Recently Paid': case 'Paid': case 'Consolidated': return 'default';
+      case 'Return': return 'destructive';
+      default: return 'default';
     }
   };
 
   async function handleCancelOrder() {
     if (!selectedOrder) return;
     if (!cancelReason.trim()) {
-      showToast.error('Please enter a reason for cancellation.');
+      showToast.error(t('enter_reason_for_cancellation'));
       return;
     }
     setCancelLoading(true);
     try {
       await call.post('ury.ury.doctype.ury_order.ury_order.cancel_order', {
-        invoice_id: selectedOrder.name,
-        reason: cancelReason
-      })
-      showToast.success('Order cancelled successfully');
+        invoice_id: selectedOrder.name, reason: cancelReason
+      });
+      showToast.success(t('order_cancelled_success'));
       setCancelDialogOpen(false);
       setCancelReason('');
       clearSelectedOrder();
       fetchOrders();
     } catch (err) {
-      showToast.error(err instanceof Error ? err.message : 'Failed to cancel order');
+      showToast.error(err instanceof Error ? err.message : t('failed_cancel_order'));
     } finally {
       setCancelLoading(false);
     }
@@ -124,35 +87,20 @@ export default function Orders() {
       if (!res.ok) throw new Error('Failed to fetch order details');
       const data = await res.json();
       const order = data.message;
-      // Fill POS store
       posStore.resetOrderState();
       posStore.setSelectedOrderType(order.order_type);
       posStore.setOrderForUpdate(order.name);
       if (order.restaurant_table) {
-        posStore.setSelectedTable(order.restaurant_table, order.custom_restaurant_room || null,true);
+        posStore.setSelectedTable(order.restaurant_table, order.custom_restaurant_room || null, true);
       }
       posStore.setSelectedCustomer({ id: order.customer, name: order.customer_name, phone: order.mobile_number });
-      // Fill cart
       const items = (order.items || []).map((item: any) => ({
-        id: item.item_code,
-        name: item.item_name,
-        price: item.rate,
-        quantity: item.qty,
-        amount: item.amount,
-        image: item.image || null,
-        uniqueId: item.name,
-        item: item.item_code,
-        item_name: item.item_name,
-        item_image: null,
-        course: '',
-        description: item.description || '',
-        special_dish: 0,
-        tax_rate: 0,
+        id: item.item_code, name: item.item_name, price: item.rate, quantity: item.qty,
+        amount: item.amount, image: item.image || null, uniqueId: item.name, item: item.item_code,
+        item_name: item.item_name, item_image: null, course: '', description: item.description || '',
+        special_dish: 0, tax_rate: 0,
       }));
-      for (const cartItem of items) {
-        await posStore.addToOrder(cartItem);
-      }
-      // Redirect to POS page
+      for (const cartItem of items) await posStore.addToOrder(cartItem);
       navigate('/');
     } catch (err) {
       showToast.error(err instanceof Error ? err.message : 'Failed to edit order');
@@ -165,23 +113,18 @@ export default function Orders() {
     if (!selectedOrder || !posStore.posProfile) return;
     setIsPrinting(true);
     try {
-      await printOrder({
-        orderId: selectedOrder.name,
-        posProfile: posStore.posProfile
-      });
-      showToast.success(`Printed Successfully`);
-      // Locally update selectedOrder.invoice_printed to 1
+      await printOrder({ orderId: selectedOrder.name, posProfile: posStore.posProfile });
+      showToast.success(t('printed_successfully'));
       if (selectedOrder && typeof selectedOrder === 'object') {
         selectOrder({ ...selectedOrder, invoice_printed: 1 });
       }
-      // If order was Unbilled, set to Draft and reload draft orders
       if (selectedStatus === 'Unbilled') {
-        showToast.info('Order moved to Draft after printing.');
+        showToast.info(t('order_moved_to_draft'));
         setSelectedStatus('Draft');
         fetchOrders();
       }
     } catch (err: any) {
-      showToast.error('Print failed: ' + (err?.message || err));
+      showToast.error(t('print_failed', { error: err?.message || err }));
     } finally {
       setIsPrinting(false);
     }
@@ -191,7 +134,7 @@ export default function Orders() {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <p className="text-xl font-semibold text-red-600 mb-2">Failed to load orders</p>
+          <p className="text-xl font-semibold text-red-600 mb-2">{t('failed_load_orders')}</p>
           <p className="text-gray-600">{error}</p>
         </div>
       </div>
@@ -200,62 +143,43 @@ export default function Orders() {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      {/* Left Sidebar - Order Types */}
-      <OrderStatusSidebar
-        selectedStatus={selectedStatus}
-        setSelectedStatus={setSelectedStatus}
-      />
+      <OrderStatusSidebar selectedStatus={selectedStatus} setSelectedStatus={setSelectedStatus} />
 
-      {/* Middle Section - Order Cards */}
+      {/* Middle Section */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden pr-96">
         <div className="flex-1 overflow-y-auto bg-gray-50 p-4 pb-40">
           {orderLoading ? (
-            <div className="flex items-center justify-center h-full">
-              <Spinner />
-            </div>
+            <div className="flex items-center justify-center h-full"><Spinner /></div>
           ) : orders.length === 0 ? (
             <div className="text-center mt-10">
-              <p className="text-gray-500">No orders found</p>
+              <p className="text-gray-500">{t('no_orders_found')}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-screen-xl mx-auto">
               {orders.map((order) => (
-                <Card 
-                  key={order.name} 
+                <Card
+                  key={order.name}
                   className={`p-0 bg-white hover:shadow-md transition-shadow flex flex-col overflow-hidden cursor-pointer ${
                     selectedOrder?.name === order.name ? 'ring-2 ring-blue-500 shadow-lg' : ''
                   }`}
-                  onClick={() => handleOrderClick(order)}
+                  onClick={() => selectOrder(order)}
                 >
                   <CardContent className="p-0 flex flex-col h-full">
                     <div className="p-3 bg-gray-50 border-b">
-                    <h3 className="font-medium text-gray-900 text-sm truncate" title={order.name}>
-                      {order.name}
-                    </h3>
-                    <div className="flex items-center justify-between">
-                      <div>
+                      <h3 className="font-medium text-gray-900 text-sm truncate" title={order.name}>{order.name}</h3>
+                      <div className="flex items-center justify-between">
                         <p className="text-xs text-gray-500">
                           {order.restaurant_table ? `Table ${order.restaurant_table} • ` : ''}{order.order_type}
                         </p>
+                        <Badge variant={getBadgeVariant(order.status)} className="ml-2">{order.status}</Badge>
                       </div>
-                      <Badge variant={getBadgeVariant(order.status)} className="ml-2">
-                        {order.status}
-                      </Badge>
                     </div>
-                    </div>
-
-                    {/* Content section - matches MenuCard padding and structure */}
                     <div className="flex-1 p-3 flex flex-col">
-                      <div className="">
-                        <p className="text-sm text-gray-900">{order.customer}</p>
-                      </div>
-
+                      <p className="text-sm text-gray-900">{order.customer}</p>
                       <div className="flex items-center gap-2 text-xs text-gray-500">
                         <Clock className="w-3.5 h-3.5" />
                         <span>{formatDateTime(order.posting_date, order.posting_time)}</span>
                       </div>
-
-                      {/* Total - pushed to bottom like MenuCard */}
                       <div className="mt-auto pt-2">
                         <span className="text-sm font-semibold text-gray-900 tabular-nums">
                           {formatCurrency(order.rounded_total)}
@@ -267,32 +191,15 @@ export default function Orders() {
               ))}
             </div>
           )}
-          {/* Pagination Controls */}
           {!orderLoading && (
             <div className="py-4">
               <div className="flex justify-center items-center gap-x-4 max-w-screen-xl mx-auto">
-                <Button
-                  onClick={goToPreviousPage}
-                  disabled={pagination.currentPage === 1}
-                  variant="outline"
-                  className='w-20'
-                  size="xs"
-                >
-                  Previous
+                <Button onClick={goToPreviousPage} disabled={pagination.currentPage === 1} variant="outline" className="w-20" size="xs">
+                  {t('previous')}
                 </Button>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">
-                    Page {pagination.currentPage}
-                  </span>
-                </div>
-                <Button
-                  onClick={goToNextPage}
-                  disabled={!pagination.hasNextPage}
-                  variant="outline"
-                  className='w-20'
-                  size="xs"
-                >
-                  Next
+                <span className="text-sm text-muted-foreground">{t('page')} {pagination.currentPage}</span>
+                <Button onClick={goToNextPage} disabled={!pagination.hasNextPage} variant="outline" className="w-20" size="xs">
+                  {t('next')}
                 </Button>
               </div>
             </div>
@@ -304,25 +211,21 @@ export default function Orders() {
       <div className="w-96 bg-white border-l border-gray-200 flex flex-col h-[calc(100vh-4rem)] fixed right-0 z-10">
         {!selectedOrder ? (
           <div className="text-center h-full flex flex-col items-center justify-center text-gray-500 p-6">
-            <p className="text-lg font-medium mb-2">Select an order to view details</p>
-            <p className="text-sm">Click on any order card to view its details</p>
+            <p className="text-lg font-medium mb-2">{t('select_order_prompt')}</p>
+            <p className="text-sm">{t('select_order_hint')}</p>
           </div>
         ) : selectedOrderLoading ? (
-          <div className="flex items-center justify-center h-full">
-            <Spinner />
-          </div>
+          <div className="flex items-center justify-center h-full"><Spinner /></div>
         ) : selectedOrderError ? (
           <div className="text-center h-full flex flex-col items-center justify-center text-red-500 p-6">
-            <p className="text-lg font-medium mb-2">Failed to load order details</p>
+            <p className="text-lg font-medium mb-2">{t('failed_load_order_details')}</p>
             <p className="text-sm">{selectedOrderError}</p>
           </div>
         ) : (
           <>
-            {/* Fixed Header */}
             <div className="sticky top-0 left-0 right-0 z-20 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between min-h-[64px]">
               <h2 className="text-xl font-semibold text-gray-900 truncate max-w-[10rem]">{selectedOrder.name}</h2>
               <div className="flex items-center gap-2">
-                {/* Only show edit and cancel buttons for Draft, Unbilled, and Recently Paid orders */}
                 {(selectedOrder.status === 'Draft' || selectedOrder.status === 'Unbilled' || selectedOrder.status === 'Recently Paid') && (
                   <>
                     <button
@@ -333,7 +236,7 @@ export default function Orders() {
                       disabled={editLoading}
                     >
                       <Pencil className="w-4 h-4" />
-                      {editLoading && <span className="ml-2 text-xs">Loading...</span>}
+                      {editLoading && <span className="ml-2 text-xs">{t('loading')}</span>}
                     </button>
                     <button
                       type="button"
@@ -345,46 +248,41 @@ export default function Orders() {
                     </button>
                   </>
                 )}
-                <Badge variant={getBadgeVariant(selectedOrder.status)}>
-                  {selectedOrder.status}
-                </Badge>
+                <Badge variant={getBadgeVariant(selectedOrder.status)}>{selectedOrder.status}</Badge>
               </div>
             </div>
-            {/* Cancel Order Dialog */}
+
+            {/* Cancel Dialog */}
             <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Cancel Order</DialogTitle>
-                  <DialogDescription>
-                    Please provide a reason for cancelling this order.
-                  </DialogDescription>
+                  <DialogTitle>{t('cancel_order')}</DialogTitle>
+                  <DialogDescription>{t('cancel_order_reason_prompt')}</DialogDescription>
                 </DialogHeader>
                 <div className="px-6 mb-3">
-                <Textarea
-                  placeholder="Enter cancel reason"
-                  value={cancelReason}
-                  onChange={e => setCancelReason(e.target.value)}
-                  disabled={cancelLoading}
-                  autoFocus
-                />
+                  <Textarea
+                    placeholder={t('enter_cancel_reason')}
+                    value={cancelReason}
+                    onChange={e => setCancelReason(e.target.value)}
+                    disabled={cancelLoading}
+                    autoFocus
+                  />
                 </div>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setCancelDialogOpen(false)} disabled={cancelLoading}>
-                    Close
+                    {t('close')}
                   </Button>
                   <Button variant="danger" onClick={handleCancelOrder} disabled={cancelLoading}>
-                    {cancelLoading ? 'Cancelling...' : 'Confirm Cancel'}
+                    {cancelLoading ? t('cancelling') : t('confirm_cancel')}
                   </Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
-            {/* Scrollable Content Area */}
+
+            {/* Scrollable Content */}
             <div className="flex-1 overflow-y-auto p-6 pb-40">
-              {/* Order Header (now only info, not name/buttons) */}
               <div className="mb-6">
-                {/* Two-column Order Info */}
                 <div className="grid grid-cols-2 gap-4">
-                  {/* First column: customer and time */}
                   <div className="space-y-3">
                     <div className="flex items-center gap-3 text-sm">
                       <User className="w-4 h-4 text-gray-500" />
@@ -395,7 +293,6 @@ export default function Orders() {
                       <span className="text-gray-600">{formatDateTime(selectedOrder.posting_date, selectedOrder.posting_time)}</span>
                     </div>
                   </div>
-                  {/* Second column: waiter and table */}
                   <div className="space-y-3">
                     <div className="flex items-center gap-3 text-sm">
                       <UserCheck className="w-4 h-4 text-gray-500" />
@@ -411,37 +308,29 @@ export default function Orders() {
                 </div>
               </div>
 
-              {/* Order Items */}
               <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Order Items</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('order_items')}</h3>
                 <div className="space-y-3">
                   {selectedOrderItems.map((item, index) => (
                     <div key={index} className="flex justify-between items-start py-2 border-b border-gray-100">
                       <div className="flex-1">
                         <p className="text-sm font-medium text-gray-900">{item.item_name}</p>
-                        <p className="text-xs text-gray-500">Qty: {item.qty}</p>
+                        <p className="text-xs text-gray-500">{t('qty', { qty: item.qty })}</p>
                       </div>
-                      <div className="text-right">
-                        <p className="text-sm font-semibold text-gray-900">
-                          {formatCurrency(item.amount)}
-                        </p>
-                      </div>
+                      <p className="text-sm font-semibold text-gray-900">{formatCurrency(item.amount)}</p>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Taxes */}
               {selectedOrderTaxes.length > 0 && (
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Taxes & Charges</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('taxes_charges')}</h3>
                   <div className="space-y-2">
                     {selectedOrderTaxes.map((tax, index) => (
                       <div key={index} className="flex justify-between items-center py-1">
                         <span className="text-sm text-gray-600">{tax.description}</span>
-                        <span className="text-sm font-medium text-gray-900">
-                          {formatCurrency(tax.rate)}
-                        </span>
+                        <span className="text-sm font-medium text-gray-900">{formatCurrency(tax.rate)}</span>
                       </div>
                     ))}
                   </div>
@@ -449,36 +338,33 @@ export default function Orders() {
               )}
             </div>
 
-            {/* Sticky Bottom Section - Single Row: Print | Payment | Total */}
+            {/* Sticky Bottom */}
             <div className="border-t border-gray-200 p-6 bg-gray-50 sticky bottom-0 left-0 right-0 z-10">
               <div className="flex items-center gap-3 w-full">
-                {/* Print Icon Button */}
                 <Button
                   variant="outline"
                   size="icon"
                   className="flex-shrink-0"
                   onClick={handlePrintOrder}
-                  aria-label="Print"
+                  aria-label={t('print')}
                   disabled={isPrinting}
                 >
                   {isPrinting ? <Spinner className="w-5 h-5" hideMessage /> : <Printer className="w-5 h-5" />}
                 </Button>
-                {/* Payment Button - Only show for Draft, Unbilled, and Recently Paid orders */}
                 {(selectedOrder.status === 'Draft' || selectedOrder.status === 'Unbilled' || selectedOrder.status === 'Recently Paid') && (
                   <Button
                     className="flex-1"
                     onClick={() => {
                       if (String(selectedOrder.invoice_printed) === '0') {
-                        showToast.error('Please print invoice before making payment');
+                        showToast.error(t('please_print_before_payment'));
                         return;
                       }
                       setShowPaymentDialog(true);
                     }}
                   >
-                    Payment
+                    {t('payment')}
                   </Button>
                 )}
-                {/* Total */}
                 <span className="ml-auto text-xl font-bold text-gray-900 whitespace-nowrap">
                   {formatCurrency(selectedOrder.rounded_total)}
                 </span>
@@ -487,6 +373,7 @@ export default function Orders() {
           </>
         )}
       </div>
+
       {showPaymentDialog && selectedOrder && (
         <PaymentDialog
           onClose={() => setShowPaymentDialog(false)}
@@ -504,4 +391,4 @@ export default function Orders() {
       )}
     </div>
   );
-};
+}
