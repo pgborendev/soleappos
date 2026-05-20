@@ -6,6 +6,8 @@ import { dirname, resolve } from 'path'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
+const FRAPPE_URL = process.env.FRAPPE_URL || 'http://localhost:8001';
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
@@ -17,5 +19,13 @@ export default defineConfig({
   build: {
     outDir: "../ury/public/pos",
     emptyOutDir: true,
+  },
+  server: {
+    port: 8080,
+    proxy: {
+      '/api': { target: FRAPPE_URL, changeOrigin: true, secure: false },
+      '/assets': { target: FRAPPE_URL, changeOrigin: true, secure: false },
+      '/files': { target: FRAPPE_URL, changeOrigin: true, secure: false },
+    },
   },
 })

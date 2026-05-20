@@ -5,6 +5,9 @@ import km from './locales/km';
 
 const LANG_KEY = 'ury_language';
 
+const initialLang = (localStorage.getItem(LANG_KEY) as 'en' | 'km') || 'en';
+document.documentElement.lang = initialLang;
+
 i18n
   .use(initReactI18next)
   .init({
@@ -12,13 +15,14 @@ i18n
       en: { translation: en },
       km: { translation: km },
     },
-    lng: localStorage.getItem(LANG_KEY) || 'en',
+    lng: initialLang,
     fallbackLng: 'en',
     interpolation: { escapeValue: false },
   });
 
 export function setLanguage(lang: 'en' | 'km') {
   localStorage.setItem(LANG_KEY, lang);
+  document.documentElement.lang = lang;
   i18n.changeLanguage(lang);
 }
 

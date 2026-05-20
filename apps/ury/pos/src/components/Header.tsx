@@ -7,6 +7,7 @@ import {
   Monitor,
   LogOut,
   RefreshCw,
+  Globe,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button, Input } from './ui';
@@ -15,11 +16,12 @@ import { usePOSStore } from '../store/pos-store';
 import type { RootState } from '../store/root-store';
 import { logout } from '../lib/auth-api';
 import { showToast } from './ui/toast';
-import LanguageSwitcher from './LanguageSwitcher';
+import { getLanguage, setLanguage } from '../i18n';
 
 const Header = () => {
   const { t } = useTranslation();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [currentLang, setCurrentLang] = useState<'en' | 'km'>(getLanguage());
   const userMenuRef = useRef<HTMLDivElement>(null);
   const user = useRootStore((state: RootState) => state.user);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -91,6 +93,12 @@ const Header = () => {
     window.location.reload();
   };
 
+  const handleToggleLanguage = () => {
+    const next = currentLang === 'en' ? 'km' : 'en';
+    setLanguage(next);
+    setCurrentLang(next);
+  };
+
   return (
     <header className="bg-white border-b border-gray-200">
       <div className="flex items-center justify-between h-16 px-3 sm:px-6">
@@ -98,7 +106,7 @@ const Header = () => {
         <div className="flex items-center">
           <Link to="/" className="flex items-center space-x-3">
             <img
-              src="/assets/ury/pos/ury_pos.png"
+              src="/assets/ury/pos/soleap_pos.png"
               alt="URY POS"
               className="h-8 sm:h-10 w-auto"
             />
@@ -122,8 +130,6 @@ const Header = () => {
 
         {/* Right side actions */}
         <div className="flex items-center space-x-3">
-          <LanguageSwitcher />
-
           {/* User menu */}
           <div className="relative" ref={userMenuRef}>
             <Button
@@ -145,6 +151,15 @@ const Header = () => {
                   <p className="text-sm text-gray-500">{user?.name || ''}</p>
                 </div>
                 <div className="py-2">
+                  <Button
+                    variant="ghost"
+                    className="flex justify-start items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                    onClick={handleToggleLanguage}
+                  >
+                    <Globe className="w-4 h-4 mr-3" />
+                    <span className="mr-2">{currentLang === 'en' ? '🇰🇭' : '🇺🇸'}</span>
+                    {currentLang === 'en' ? 'ភាសាខ្មែរ' : 'English'}
+                  </Button>
                   <Button
                     variant="ghost"
                     className="flex justify-start items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"

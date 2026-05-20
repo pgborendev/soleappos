@@ -473,6 +473,7 @@ def getPosProfile():
         multiple_cashier = pos_profiles.custom_enable_multiple_cashier
         edit_order_type = pos_profiles.custom_edit_order_type
         enable_kot_reprint = pos_profiles.custom_enable_kot_reprint
+        default_customer = pos_profiles.customer
         if multiple_cashier:
             details = getBranchRoom()
             room = details[0].get('name') 
@@ -546,7 +547,8 @@ def getPosProfile():
         "multiple_cashier":multiple_cashier,
         "owner":owner,
         "edit_order_type":edit_order_type,
-        "enable_kot_reprint":enable_kot_reprint
+        "enable_kot_reprint":enable_kot_reprint,
+        "default_customer":default_customer
 
     }
 
@@ -692,7 +694,101 @@ def create_customer(customer_name, mobile_number=None, customer_group="Individua
         }
 
 @frappe.whitelist()
-def validate_pos_close(pos_profile): 
+def get_pos_session_status(pos_profile):
+    """Return current session state for the Android POS app."""
+    open_entry = frappe.db.get_value(
+        "POS Opening Entry",
+        {"pos_profile": pos_profile, "status": "Open", "docstatus": 1},
+        "name",
+    )
+
+    # Check for an unclosed session from a previous calendar day
+    today = frappe.utils.today()
+    unclosed_previous = frappe.db.exists(
+        "POS Opening Entry",
+        {
+            "pos_profile": pos_profile,
+            "status": "Open",
+            "docstatus": 1,
+            "posting_date": ["<", today],
+        },
+    )
+
+    return {
+        "is_open": bool(open_entry),
+        "needs_close_previous": bool(unclosed_previous),
+        "opening_entry": open_entry or None,
+    }
+
+
+@frappe.whitelist()
+def open_pos_session(pos_profile, cashier):
+    """Create and submit a POS Opening Entry for today."""
+    existing = frappe.db.exists(
+        "POS Opening Entry",
+        {"pos_profile": pos_profile, "status": "Open", "docstatus": 1},
+    )
+    if existing:
+        return {"status": "already_open", "name": existing}
+
+    company = frappe.db.get_value("POS Profile", pos_profile, "company")
+    entry = frappe.new_doc("POS Opening Entry")
+    entry.pos_profile = pos_profile
+    entry.company = company
+    entry.user = cashier
+    entry.period_start_date = frappe.utils.now()
+
+    profile_doc = frappe.get_doc("POS Profile", pos_profile)
+    for pm in profile_doc.payments:
+        entry.append("balance_details", {
+            "mode_of_payment": pm.mode_of_payment,
+            "opening_amount": 0,
+        })
+
+    entry.insert(ignore_permissions=True)
+    entry.submit()
+    return {"status": "opened", "name": entry.name}
+
+
+@frappe.whitelist()
+def close_pos_session(pos_profile):
+    """Create and submit a POS Closing Entry for the current open session."""
+    opening_entry = frappe.db.get_value(
+        "POS Opening Entry",
+        {"pos_profile": pos_profile, "status": "Open", "docstatus": 1},
+        ["name", "company"],
+        as_dict=True,
+    )
+    if not opening_entry:
+        return {"status": "no_open_session"}
+
+    company = opening_entry.company or frappe.db.get_value("POS Profile", pos_profile, "company")
+    closing = frappe.new_doc("POS Closing Entry")
+    closing.pos_profile = pos_profile
+    closing.company = company
+    closing.user = frappe.session.user
+    closing.period_start_date = frappe.db.get_value(
+        "POS Opening Entry", opening_entry.name, "period_start_date"
+    )
+    closing.period_end_date = frappe.utils.now()
+    closing.pos_opening_entry = opening_entry.name
+
+    profile_doc = frappe.get_doc("POS Profile", pos_profile)
+    for pm in profile_doc.payments:
+        closing.append("payment_reconciliation", {
+            "mode_of_payment": pm.mode_of_payment,
+            "opening_amount": 0,
+            "expected_amount": 0,
+            "closing_amount": 0,
+        })
+
+    closing.insert(ignore_permissions=True)
+    closing.submit()
+    return {"status": "closed", "name": closing.name}
+
+
+@frappe.whitelist()
+def validate_pos_close(pos_profile):
     enable_unclosed_pos_check = frappe.db.get_value("POS Profile",pos_profile,"custom_daily_pos_close")
     
     if enable_unclosed_pos_check:

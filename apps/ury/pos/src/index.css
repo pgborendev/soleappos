@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'KhmerOSSiemreap';
+  src: url('./assets/fonts/KhmerOSSiemreap.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -134,4 +142,14 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+html:lang(km),
+html:lang(km) *,
+html:lang(km) body,
+html:lang(km) button,
+html:lang(km) input,
+html:lang(km) textarea,
+html:lang(km) select {
+  font-family: 'KhmerOSSiemreap', sans-serif !important;
 }

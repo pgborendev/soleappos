@@ -1,4 +1,45 @@
 const en = {
+  // Sidebar
+  categories: 'Categories',
+  all_items: 'All Items',
+
+  // AuthGuard
+  access_denied: 'Access Denied',
+  config_error: 'Configuration Error',
+  pos_profile_not_configured: 'POS Profile not found or not configured.',
+  permission_required: 'Permission Required',
+  no_permission: 'You do not have permission to access this application.',
+  required_roles: 'Required roles:',
+  recheck_permissions: 'Recheck Permissions',
+
+  // ProductDialog
+  special_instructions: 'Special Instructions',
+  special_instructions_placeholder: 'Add any special instructions or notes for this item...',
+  quantity: 'Quantity',
+  variants: 'Variants',
+  loading_addons: 'Loading add-ons...',
+  addons: 'Add-ons',
+  no_addons: 'No add ons',
+  add_to_order: 'Add to Order',
+
+  // MenuList
+  error_loading_menu: 'Error loading menu items',
+  no_items_found: 'No items found',
+  no_items_hint: 'Try adjusting your filters or search term',
+
+  // TableSelectionDialog
+  select_table: 'Select Table',
+
+  // ScreenSizeDialog
+  desktop_only: 'Desktop Only',
+  desktop_only_message: 'This POS system is designed for desktop computers and tablets with larger screens.',
+  mobile_support_coming: 'Mobile support will be available in a future update. Please use a device with a screen width of 1024px or larger.',
+  current_screen_width: 'Current screen width:',
+  required_width: 'Required:',
+  required_width_value: '1024px or larger',
+  mobile_version_hint: 'You can use URY POS Version 1 for mobile devices.',
+  switch_to_version1: 'Switch to Version 1',
+
   // Common
   cancel: 'Cancel',
   close: 'Close',

@@ -17,6 +17,7 @@ class URYOrder(Document):
     pass
 
 
+
 @frappe.whitelist()
 def get_order_invoice(table=None, invoiceNo=None, order_type=None, is_payment=None):
     """returns the active invoice linked to the given table"""
@@ -115,8 +116,8 @@ def sync_order(
     items,
     cashier,
     owner,
-    mode_of_payment,
-    customer,
+    mode_of_payment=None,
+    customer=None,
     no_of_pax,
     last_invoice,
     waiter,
@@ -132,7 +133,7 @@ def sync_order(
     
     user_role = frappe.get_roles()
     posprofile = frappe.get_doc("POS Profile", pos_profile)
-    
+
     billing_user = any(
         role.role in user_role for role in posprofile.role_allowed_for_billing
     )
@@ -195,9 +196,10 @@ def sync_order(
             return {"status": "Failure"}
 
     if not customer:
+        customer = posprofile.customer
+    if not customer:
         frappe.throw("Please enter valid customer details")
-    else:
-        invoice.customer = customer
+    invoice.customer = customer
 
     if order_type:
         invoice.order_type = order_type
@@ -224,9 +226,12 @@ def sync_order(
 
     # dummy payment
     if invoice.invoice_created == 0:
+        mop = mode_of_payment or frappe.db.get_value(
+            "POS Payment Method", {"parent": pos_profile}, "default_mop"
+        ) or "Cash"
         invoice.append(
             "payments",
-            dict(mode_of_payment=mode_of_payment, amount=invoice.grand_total),
+            dict(mode_of_payment=mop, amount=invoice.grand_total),
         )
         invoice.invoice_created = 1
 
@@ -280,6 +285,12 @@ def sync_order(
                         ),
                 ),
             )
+
+    # Ensure ERPNext does not try to look up a currency exchange rate.
+    # Price list currency and company currency must be treated as 1:1
+    # until the system is fully configured with KHR as the base currency.
+    invoice.plc_conversion_rate = 1
+    invoice.conversion_rate = 1
 
     try:
         invoice.save()

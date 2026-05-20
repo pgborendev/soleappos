@@ -1,7 +1,9 @@
 import { Monitor, Smartphone, ExternalLink } from 'lucide-react';
 import { Button } from './ui';
+import { useTranslation } from 'react-i18next';
 
 const ScreenSizeDialog = () => {
+  const { t } = useTranslation();
   const handleSwitchToVersion1 = () => {
     // Get the current domain and open /urypos in a new tab
     const currentDomain = window.location.origin;
@@ -22,40 +24,40 @@ const ScreenSizeDialog = () => {
           
           {/* Title */}
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Desktop Only
+            {t('desktop_only')}
           </h2>
-          
+
           {/* Message */}
           <div className="text-gray-600 mb-8 space-y-3">
             <p className="text-lg">
-              This POS system is designed for desktop computers and tablets with larger screens.
+              {t('desktop_only_message')}
             </p>
             <p className="text-sm">
-              Mobile support will be available in a future update. Please use a device with a screen width of 1024px or larger.
+              {t('mobile_support_coming')}
             </p>
           </div>
-          
+
           {/* Current Screen Info */}
           <div className="bg-gray-50 rounded-lg p-4 mb-6">
             <p className="text-sm text-gray-600">
-              Current screen width: <span className="font-semibold text-gray-800">{window.innerWidth}px</span>
+              {t('current_screen_width')} <span className="font-semibold text-gray-800">{window.innerWidth}px</span>
             </p>
             <p className="text-sm text-gray-600">
-              Required: <span className="font-semibold text-gray-800">1024px or larger</span>
+              {t('required_width')} <span className="font-semibold text-gray-800">{t('required_width_value')}</span>
             </p>
           </div>
-          
+
           {/* Alternative Option */}
           <div className="bg-blue-50 rounded-lg p-4 mb-6">
             <p className="text-sm text-blue-800 mb-3">
-              You can use URY POS Version 1 for mobile devices.
+              {t('mobile_version_hint')}
             </p>
             <Button
               onClick={handleSwitchToVersion1}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 text-sm"
             >
               <ExternalLink className="w-4 h-4 mr-2" />
-              Switch to Version 1
+              {t('switch_to_version1')}
             </Button>
           </div>
         </div>

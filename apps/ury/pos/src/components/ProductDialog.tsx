@@ -4,6 +4,7 @@ import { OrderItem, usePOSStore } from '../store/pos-store';
 import { cn, formatCurrency } from '../lib/utils';
 import { Button, Dialog, DialogContent, Input } from './ui';
 import { db } from '../lib/frappe-sdk';
+import { useTranslation } from 'react-i18next';
 
 interface Variant {
   id: string;
@@ -35,11 +36,12 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
   initialQuantity,
   itemToReplace
 }) => {
-  const { 
-    selectedItem, 
-    addToOrder, 
-    removeFromOrder, 
-    setSelectedItem, 
+  const { t } = useTranslation();
+  const {
+    selectedItem,
+    addToOrder,
+    removeFromOrder,
+    setSelectedItem,
     getItemQuantityFromCart,
     activeOrders,
     menuItems
@@ -356,9 +358,9 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
           </div>
 
           <div className="mt-6">
-            <h3 className="text-lg font-semibold mb-3">Special Instructions</h3>
+            <h3 className="text-lg font-semibold mb-3">{t('special_instructions')}</h3>
             <Input
-              placeholder="Add any special instructions or notes for this item..."
+              placeholder={t('special_instructions_placeholder')}
               value={comments}
               onChange={(e: ChangeEvent<HTMLInputElement>) => setComments(e.target.value)}
               className="resize-none"
@@ -366,7 +368,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
           </div>
 
           <div className="mt-6">
-            <h3 className="text-lg font-semibold mb-3">Quantity</h3>
+            <h3 className="text-lg font-semibold mb-3">{t('quantity')}</h3>
             <div className="flex items-center space-x-2">
               <Button
                 onClick={handleDecrement}
@@ -403,7 +405,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
           {/* Variants Section  */}
           {variantDetails.length > 0 && (
             <div className="mt-6">
-              <h3 className="text-lg font-semibold mb-3">Variants</h3>
+              <h3 className="text-lg font-semibold mb-3">{t('variants')}</h3>
               <div className="flex gap-2 flex-wrap">
                 {variantDetails.map((variant: any) => {
                   const menuVariant = menuItems.find((m: any) => m.item === variant.id);
@@ -433,12 +435,12 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
         <div className="h-auto md:w-1/3 p-6 border-t md:border-t-0 md:border-l border-gray-200 overflow-y-auto flex flex-col">
           <div className="overflow-y-auto mb-6">
             {isAddonLoading ? (
-              <div className="mb-6 flex items-center justify-center text-gray-500">Loading add-ons...</div>
+              <div className="mb-6 flex items-center justify-center text-gray-500">{t('loading_addons')}</div>
             ) : addonError ? (
               <div className="flex items-center justify-center text-red-500">{addonError}</div>
             ) : addonDetails.length > 0 ? (
               <div className="mb-6">
-                <h3 className="text-lg font-semibold mb-3">Add-ons</h3>
+                <h3 className="text-lg font-semibold mb-3">{t('addons')}</h3>
                 <div className="space-y-2">
                   {addonDetails.map((addon: any) => (
                     <button
@@ -460,13 +462,13 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
                 </div>
               </div>
             ) : (
-              <div className="flex items-center justify-center text-gray-400 text-sm">No add ons</div>
+              <div className="flex items-center justify-center text-gray-400 text-sm">{t('no_addons')}</div>
             )}
           </div>
           {/* Always show total section at the end */}
           <div className="mt-auto pt-2 border-t border-gray-200">
             <div className="flex justify-between items-center text-lg font-semibold">
-              <span>Total&nbsp;</span>
+              <span>{t('total')}&nbsp;</span>
               <span>{formatCurrency(total)}</span>
             </div>
             <Button
@@ -475,7 +477,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
               size="lg"
               disabled={numericQuantity === 0}
             >
-              {editMode || existingCartItem ? 'Update Order' : 'Add to Order'}
+              {editMode || existingCartItem ? t('update_order') : t('add_to_order')}
             </Button>
           </div>
         </div>

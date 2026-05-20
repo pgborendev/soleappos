@@ -1,4 +1,45 @@
 const km = {
+  // Sidebar
+  categories: 'ប្រភេទ',
+  all_items: 'ទាំងអស់',
+
+  // AuthGuard
+  access_denied: 'គ្មានសិទ្ធិចូល',
+  config_error: 'កំហុសសំណុំបែបបទ',
+  pos_profile_not_configured: 'រក​មិន​ឃើញ POS Profile ឬ​មិន​ទាន់​កំណត់​រចនាសម្ព័ន្ធ',
+  permission_required: 'ត្រូវការការអនុញ្ញាត',
+  no_permission: 'អ្នកមិនមានការអនុញ្ញាតចូលប្រើប្រាស់កម្មវិធីនេះ',
+  required_roles: 'តួនាទីដែលត្រូវការ:',
+  recheck_permissions: 'ពិនិត្យការអនុញ្ញាតម្ដងទៀត',
+
+  // ProductDialog
+  special_instructions: 'ការណែនាំពិសេស',
+  special_instructions_placeholder: 'បន្ថែមការណែនាំ ឬចំណាំពិសេសសម្រាប់ទំនិញនេះ...',
+  quantity: 'បរិមាណ',
+  variants: 'ប្រភេទ',
+  loading_addons: 'កំពុងទាញ add-ons...',
+  addons: 'Add-ons',
+  no_addons: 'គ្មាន add-ons',
+  add_to_order: 'បន្ថែមទៅការបញ្ជាទិញ',
+
+  // MenuList
+  error_loading_menu: 'បរាជ័យក្នុងការទាញម៉ឺនុយ',
+  no_items_found: 'រកមិនឃើញទំនិញ',
+  no_items_hint: 'សូមកែតម្រូវតម្រង ឬពាក្យស្វែងរក',
+
+  // TableSelectionDialog
+  select_table: 'ជ្រើសតុ',
+
+  // ScreenSizeDialog
+  desktop_only: 'សម្រាប់កុំព្យូទ័រតែប៉ុណ្ណោះ',
+  desktop_only_message: 'ប្រព័ន្ធ POS នេះត្រូវបានរចនាសម្រាប់កុំព្យូទ័រ និងថេប្លេតដែលមានអេក្រង់ធំជាង',
+  mobile_support_coming: 'ការគាំទ្រទូរស័ព្ទនឹងមានក្នុងការអាប់ដេតបន្ទាប់ សូមប្រើឧបករណ៍ដែលមានទទឹងអេក្រង់ 1024px ឬធំជាង',
+  current_screen_width: 'ទទឹងអេក្រង់បច្ចុប្បន្ន:',
+  required_width: 'ទទឹងដែលត្រូវការ:',
+  required_width_value: '1024px ឬធំជាង',
+  mobile_version_hint: 'អ្នកអាចប្រើ URY POS Version 1 សម្រាប់ទូរស័ព្ទ',
+  switch_to_version1: 'ប្ដូរទៅ Version 1',
+
   // Common
   cancel: 'បោះបង់',
   close: 'បិទ',

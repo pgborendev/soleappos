@@ -127,7 +127,10 @@ doc_events = {
     "POS Invoice": {
         "before_insert": "ury.ury.hooks.ury_pos_invoice.before_insert",
         "validate": "ury.ury.hooks.ury_pos_invoice.validate",
-        "after_insert":"ury.ury.api.ury_kot_order_number.set_order_number",
+        "after_insert": [
+            "ury.ury.api.ury_kot_order_number.set_order_number",
+            "ury.ury.api.telegram_bot.notify_staff_new_order",
+        ],
         "before_submit": "ury.ury.hooks.ury_pos_invoice.before_submit",
         "on_cancel": "ury.ury.hooks.ury_pos_invoice.on_trash",
         "on_trash": "ury.ury.hooks.ury_pos_invoice.on_trash",

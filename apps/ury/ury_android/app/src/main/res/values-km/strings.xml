@@ -1,3 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">URY POS</string>
+    <string name="login">ចូលប្រើរ</string>
+    <string name="logout">ចាកចេញ</string>
+    <string name="server_url">Server URL</string>
+    <string name="username">ឈ្មោះអ្នកប្រើរ</string>
+    <string name="password">លេខកូដសំងាត់</string>
+    <string name="pay">បង់ប្រាក់</string>
+    <string name="clear_order">សំអាត</string>
+    <string name="add_to_cart">ដាក់ចូលក្នុងកន្ត្រក</string>
+    <string name="confirm_payment">បញ្ចាក់ការបង់ប្រាក់</string>
+    <string name="current_order">ការកម្មង់ពេលបច្ជប្បន្ន</string>
+    <string name="orders">ការកម្មង់</string>
+    <string name="tables">លេខតុ</string>
+    <string name="menu">មេនុយ</string>
+    <string name="search_menu">ស្វែងរកក្នុងមេនុយ</string>
+    <string name="all_categories">ទាំងអស់</string>
+    <string name="no_items">មិនមានឈ្មោះទំនិញ</string>
+    <string name="select_payment_mode">ជ្រើសយករបៀបបង់ប្រាក់</string>
 </resources>
