@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base light theme -->
+    <style name="Theme.URYPos" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary_dark</item>
+        <item name="colorOnPrimary">@color/on_primary</item>
+        <item name="colorSecondary">@color/primary</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/on_surface</item>
+        <item name="android:colorBackground">@color/background</item>
+        <item name="colorOnBackground">@color/on_surface</item>
+        <item name="colorError">@color/danger</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:statusBarColor">@color/surface</item>
+        <item name="android:navigationBarColor">@color/surface</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+
+        <!-- Material Components styling -->
+        <item name="materialCardViewStyle">@style/Widget.URYPos.Card</item>
+        <item name="chipStyle">@style/Widget.URYPos.Chip</item>
+        <item name="bottomNavigationStyle">@style/Widget.URYPos.BottomNavigation</item>
+    </style>
+
+    <!-- Dark theme -->
+    <style name="Theme.URYPos.Dark" parent="Theme.MaterialComponents.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary_dark</item>
+        <item name="colorOnPrimary">@color/on_primary</item>
+        <item name="colorSecondary">@color/primary</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/on_surface</item>
+        <item name="android:colorBackground">@color/background</item>
+        <item name="colorOnBackground">@color/on_surface</item>
+        <item name="colorError">@color/danger</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:statusBarColor">@color/background</item>
+        <item name="android:navigationBarColor">@color/background</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+
+        <item name="materialCardViewStyle">@style/Widget.URYPos.Card</item>
+        <item name="chipStyle">@style/Widget.URYPos.Chip</item>
+        <item name="bottomNavigationStyle">@style/Widget.URYPos.BottomNavigation</item>
+    </style>
+
+    <!-- Card style -->
+    <style name="Widget.URYPos.Card" parent="Widget.MaterialComponents.CardView">
+        <item name="cardCornerRadius">@dimen/card_radius</item>
+        <item name="cardElevation">0dp</item>
+        <item name="strokeColor">@color/divider</item>
+        <item name="strokeWidth">0.5dp</item>
+        <item name="cardBackgroundColor">@color/card_background</item>
+        <item name="contentPadding">0dp</item>
+    </style>
+
+    <!-- Chip style - filter pill look -->
+    <style name="Widget.URYPos.Chip" parent="Widget.MaterialComponents.Chip.Filter">
+        <item name="chipBackgroundColor">@color/chip_bg</item>
+        <item name="chipStrokeColor">@color/chip_border</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="chipCornerRadius">@dimen/chip_radius</item>
+        <item name="android:textColor">@color/chip_text</item>
+        <item name="android:textSize">13sp</item>
+        <item name="chipMinHeight">36dp</item>
+        <item name="rippleColor">@color/primary_light</item>
+        <item name="checkedIconVisible">false</item>
+        <item name="chipEndPadding">12dp</item>
+        <item name="chipStartPadding">12dp</item>
+        <item name="closeIconVisible">false</item>
+    </style>
+
+    <!-- Secondary chip style (Special Items filter) -->
+    <style name="Widget.URYPos.Chip.Secondary">
+        <item name="chipBackgroundColor">@color/chip_secondary_bg</item>
+        <item name="chipStrokeColor">@color/chip_border</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="chipCornerRadius">@dimen/chip_radius</item>
+        <item name="android:textColor">@color/chip_secondary_text</item>
+        <item name="android:textSize">13sp</item>
+        <item name="chipMinHeight">36dp</item>
+        <item name="checkedIconVisible">false</item>
+        <item name="chipEndPadding">12dp</item>
+        <item name="chipStartPadding">12dp</item>
+        <item name="closeIconVisible">false</item>
+    </style>
+
+    <!-- Bottom Navigation style -->
+    <style name="Widget.URYPos.BottomNavigation" parent="Widget.MaterialComponents.BottomNavigationView">
+        <item name="itemIconTint">@color/nav_item_color</item>
+        <item name="itemTextColor">@color/nav_item_color</item>
+        <item name="labelVisibilityMode">labeled</item>
+        <item name="itemHorizontalTranslationEnabled">false</item>
+        <item name="itemRippleColor">@color/primary_light</item>
+    </style>
+
+    <style name="Theme.URYPos.PopupOverlay" parent="Widget.MaterialComponents.PopupMenu" />
+</resources>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/bottom_nav"
+    android:layout_width="match_parent"
+    android:layout_height="65dp"
+    android:orientation="horizontal"
+    android:gravity="center"
+    android:padding="5dp"
+    android:background="@color/surface">
+
+    <LinearLayout
+        android:id="@+id/nav_pos"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:clickable="true"
+        android:focusable="true"
+        android:paddingLeft="@dimen/nav_btn_padding_horizontal"
+        android:paddingRight="@dimen/nav_btn_padding_horizontal"
+        android:foreground="?attr/selectableItemBackgroundBorderless">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_nav_pos"
+            app:tint="@color/nav_item_color" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/menu"
+            android:textSize="12sp"
+            android:textColor="@color/nav_item_color"
+            android:layout_marginTop="2dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/nav_table"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:clickable="true"
+        android:focusable="true"
+        android:paddingLeft="@dimen/nav_btn_padding_horizontal"
+        android:paddingRight="@dimen/nav_btn_padding_horizontal"
+        android:foreground="?attr/selectableItemBackgroundBorderless">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_nav_table"
+            app:tint="@color/nav_item_color" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tables"
+            android:textSize="12sp"
+            android:textColor="@color/nav_item_color"
+            android:layout_marginTop="2dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/nav_order"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:clickable="true"
+        android:focusable="true"
+        android:paddingLeft="@dimen/nav_btn_padding_horizontal"
+        android:paddingRight="@dimen/nav_btn_padding_horizontal"
+        android:foreground="?attr/selectableItemBackgroundBorderless">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_nav_order"
+            app:tint="@color/nav_item_color" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/orders"
+            android:textSize="12sp"
+            android:textColor="@color/nav_item_color"
+            android:layout_marginTop="2dp" />
+    </LinearLayout>
+
+</LinearLayout>

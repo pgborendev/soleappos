@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary: Blue (#2563EB) -->
+    <color name="primary">#2563EB</color>
+    <color name="primary_dark">#2563EB</color>
+    <color name="primary_light">#DBEAFE</color>
+    <color name="primary_50">#EFF6FF</color>
+    <color name="primary_100">#DBEAFE</color>
+    <color name="primary_200">#BFDBFE</color>
+    <color name="primary_300">#93C5FD</color>
+    <color name="primary_400">#60A5FA</color>
+    <color name="primary_500">#3B82F6</color>
+    <color name="primary_600">#2563EB</color>
+    <color name="primary_700">#1D4ED8</color>
+    <color name="primary_800">#1E40AF</color>
+    <color name="primary_900">#1E3A8A</color>
+
+    <!-- Surface & Background -->
+    <color name="surface">#FFFFFF</color>
+    <color name="background">#FFFFFF</color>
+    <color name="card_background">#FFFFFF</color>
+
+    <!-- Text -->
+    <color name="on_primary">#FFFFFF</color>
+    <color name="on_surface">#19191A</color>
+    <color name="text_secondary">#494950</color>
+    <color name="text_tertiary">#787887</color>
+    <color name="text_disabled">#D1D5DB</color>
+
+    <!-- Borders & Dividers -->
+    <color name="divider">#E2E8F0</color>
+    <color name="border">#E2E8F0</color>
+    <color name="input_border">#D1D5DB</color>
+
+    <!-- Gray scale -->
+    <color name="gray_50">#F9FAFB</color>
+    <color name="gray_100">#F6F6F9</color>
+    <color name="gray_200">#E2E8F0</color>
+    <color name="gray_300">#D1D5DB</color>
+    <color name="gray_400">#ACACB9</color>
+    <color name="gray_500">#787887</color>
+    <color name="gray_600">#494950</color>
+    <color name="gray_700">#374151</color>
+    <color name="gray_800">#1F2937</color>
+    <color name="gray_900">#19191A</color>
+
+    <!-- Semantic colors -->
+    <color name="success">#10B981</color>
+    <color name="success_light">#DCFCE7</color>
+    <color name="success_dark">#166534</color>
+    <color name="danger">#EF4444</color>
+    <color name="danger_light">#FEE2E2</color>
+    <color name="danger_dark">#991B1B</color>
+    <color name="warning">#F59E0B</color>
+    <color name="warning_light">#FEF3C7</color>
+    <color name="warning_dark">#A16207</color>
+
+    <!-- Table status -->
+    <color name="table_available">#DCFCE7</color>
+    <color name="table_occupied">#FEE2E2</color>
+    <color name="table_available_border">#10B981</color>
+    <color name="table_occupied_border">#EF4444</color>
+
+    <!-- Placeholder -->
+    <color name="placeholder_text">#ACACB9</color>
+
+    <!-- Muted -->
+    <color name="muted">#F6F6F9</color>
+    <color name="muted_foreground">#494950</color>
+
+    <!-- Chip colors -->
+    <color name="chip_bg">#F6F6F9</color>
+    <color name="chip_border">#E2E8F0</color>
+    <color name="chip_text">#494950</color>
+    <color name="chip_selected_bg">#2563EB</color>
+    <color name="chip_selected_text">#FFFFFF</color>
+    <color name="chip_secondary_selected_bg">#DBEAFE</color>
+    <color name="chip_secondary_selected_text">#2563EB</color>
+
+    <!-- Menu card -->
+    <color name="menu_card_course">#787887</color>
+    <color name="menu_card_placeholder_bg">#E2E8F0</color>
+    <color name="menu_card_placeholder_text">#ACACB9</color>
+
+    <!-- Toolbar -->
+    <color name="toolbar_bg">#FFFFFF</color>
+</resources>

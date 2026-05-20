@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="14dp"
+    android:gravity="center_vertical">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_item_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="@color/on_surface"
+            android:maxLines="2"
+            android:ellipsize="end" />
+
+        <TextView
+            android:id="@+id/tv_item_price"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="13sp"
+            android:textColor="@color/text_secondary"
+            android:layout_marginTop="4dp" />
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/btn_decrease"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/ic_minus"
+        android:background="@drawable/bg_qty_button"
+        android:layout_marginStart="8dp"
+        android:scaleType="center"
+        android:padding="6dp"
+        android:tint="@color/text_secondary" />
+
+    <TextView
+        android:id="@+id/tv_qty"
+        android:layout_width="36dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textColor="@color/on_surface" />
+
+    <ImageButton
+        android:id="@+id/btn_increase"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/ic_plus"
+        android:background="@drawable/bg_qty_button"
+        android:layout_marginEnd="8dp"
+        android:scaleType="center"
+        android:padding="6dp"
+        android:tint="@color/primary" />
+
+    <ImageButton
+        android:id="@+id/btn_remove"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/ic_trash"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:tint="@color/danger"
+        android:scaleType="center"
+        android:padding="6dp" />
+
+</LinearLayout>

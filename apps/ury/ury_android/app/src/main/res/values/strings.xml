@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">URY POS</string>
+    <string name="login">Login</string>
+    <string name="logout">Logout</string>
+    <string name="server_url">Server URL</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="pay">Pay</string>
+    <string name="clear_order">Clear</string>
+    <string name="add_to_cart">Add to Cart</string>
+    <string name="confirm_payment">Confirm Payment</string>
+    <string name="current_order">Current Order</string>
+    <string name="orders">Orders</string>
+    <string name="tables">Tables</string>
+    <string name="menu">Menu</string>
+    <string name="search_menu">Search menu…</string>
+    <string name="all_categories">All</string>
+    <string name="no_items">No items found</string>
+    <string name="select_payment_mode">Select payment mode</string>
+    <string name="amount">Amount</string>
+    <string name="total">Total</string>
+    <string name="search_customer">Search customer…</string>
+    <string name="available">Available</string>
+    <string name="occupied">Occupied</string>
+    <string name="select_table">Select table →</string>
+    <string name="walk_in_customer">Walk In</string>
+    <string name="add_new_order">Add New Order</string>
+    <string name="update_order">Update Order</string>
+    <string name="table_label">Table</string>
+    <string name="customer_label">Customer</string>
+    <string name="processing">Processing…</string>
+    <string name="variants">Variants</string>
+    <string name="addons">Add-ons</string>
+    <string name="user_avatar">User Avatar</string>
+</resources>

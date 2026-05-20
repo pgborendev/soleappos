@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Spacing (4dp base unit matching Tailwind) -->
+    <dimen name="spacing_xxs">2dp</dimen>
+    <dimen name="spacing_xs">4dp</dimen>
+    <dimen name="spacing_sm">8dp</dimen>
+    <dimen name="spacing_md">16dp</dimen>
+    <dimen name="spacing_lg">24dp</dimen>
+    <dimen name="spacing_xl">32dp</dimen>
+    <dimen name="spacing_2xl">48dp</dimen>
+
+    <!-- Border Radius (web POS uses 0.5rem = 8dp base) -->
+    <dimen name="card_radius">8dp</dimen>
+    <dimen name="chip_radius">18dp</dimen>
+    <dimen name="button_radius">8dp</dimen>
+    <dimen name="dialog_radius">8dp</dimen>
+    <dimen name="input_radius">8dp</dimen>
+    <dimen name="table_radius">10dp</dimen>
+
+    <!-- Elevation -->
+    <dimen name="card_elevation">1dp</dimen>
+    <dimen name="card_elevation_hover">4dp</dimen>
+    <dimen name="dialog_elevation">8dp</dimen>
+    <dimen name="fab_elevation">6dp</dimen>
+
+    <!-- Card dimensions -->
+    <dimen name="menu_card_height">160dp</dimen>
+    <dimen name="menu_card_image_height">100dp</dimen>
+    <dimen name="order_card_elevation">2dp</dimen>
+
+    <!-- FAB -->
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="fab_size">56dp</dimen>
+
+    <!-- Bottom bar -->
+    <dimen name="bottom_bar_height">56dp</dimen>
+    <dimen name="nav_btn_padding_horizontal">20dp</dimen>
+
+    <!-- Category bar -->
+    <dimen name="category_bar_height">48dp</dimen>
+
+    <!-- Order panel -->
+    <dimen name="order_panel_width">384dp</dimen>
+
+    <!-- Search -->
+    <dimen name="search_height">37.6dp</dimen>
+
+    <!-- Grid -->
+    <integer name="menu_grid_columns">2</integer>
+</resources>

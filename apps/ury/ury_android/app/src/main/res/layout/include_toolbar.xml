@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/toolbar"
+    android:layout_width="match_parent"
+    android:layout_height="56dp"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingHorizontal="12dp"
+    android:background="@color/toolbar_bg">
+
+    <!-- Logo -->
+    <ImageView
+        android:id="@+id/iv_logo"
+        android:layout_width="60dp"
+        android:layout_height="36dp"
+        android:src="@drawable/ury_pos"
+        android:scaleType="fitCenter" />
+
+    <!-- Search -->
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="37.6dp"
+        android:layout_weight="1"
+        android:layout_marginHorizontal="12dp"
+        android:background="@drawable/bg_search">
+
+        <EditText
+            android:id="@+id/et_search"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint="@string/search_menu"
+            android:textSize="13sp"
+            android:textColor="@color/on_surface"
+            android:textColorHint="@color/placeholder_text"
+            android:background="@null"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="0dp"
+            android:gravity="center_vertical"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:maxLines="1" />
+    </FrameLayout>
+
+    <!-- User button -->
+    <FrameLayout
+        android:id="@+id/btn_user"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/bg_user_circle"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackgroundBorderless">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_actor" />
+    </FrameLayout>
+
+</LinearLayout>
